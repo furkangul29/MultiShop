@@ -1,10 +1,12 @@
-﻿using MongoDB.Bson;
+﻿using Microsoft.AspNetCore.Authorization;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using MultiShop.Catalog.Entites;
 using MultiShop.Catalog.Settings;
 
 namespace MultiShop.Catalog.Services.StatisticServices
 {
+    [Authorize]
     public class StatisticService : IStatisticService
     {
         private readonly IMongoCollection<Product> _productCollection;

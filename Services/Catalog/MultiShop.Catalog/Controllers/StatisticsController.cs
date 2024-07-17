@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using MultiShop.Catalog.Dtos.StatisticDtos;
 using MultiShop.Catalog.Services.StatisticServices;
+using System.Threading.Tasks;
 
 namespace MultiShop.Catalog.Controllers
 {
@@ -14,47 +16,29 @@ namespace MultiShop.Catalog.Controllers
             _statisticService = statisticService;
         }
 
-        [HttpGet("GetBrandCount")]
-        public async Task<IActionResult> GetBrandCount()
+        [HttpGet("GetAllStatistics")]
+        public async Task<IActionResult> GetAllStatistics()
         {
-            var value = await _statisticService.GetBrandCount();
-            return Ok(value);
-        }
+            var brandCountTask = _statisticService.GetBrandCount();
+            var categoryCountTask = _statisticService.GetCategoryCount();
+            var productCountTask = _statisticService.GetProductCount();
+            var productAvgPriceTask = _statisticService.GetProductAvgPrice();
+            var maxPriceProductNameTask = _statisticService.GetMaxPriceProductName();
+            var minPriceProductNameTask = _statisticService.GetMinPriceProductName();
 
-        [HttpGet("GetCategoryCount")]
-        public async Task<IActionResult> GetCategoryCount()
-        {
-            var value = await _statisticService.GetCategoryCount();
-            return Ok(value);
-        }
+            await Task.WhenAll(brandCountTask, categoryCountTask, productCountTask, productAvgPriceTask, maxPriceProductNameTask, minPriceProductNameTask);
 
-        [HttpGet("GetProductCount")]
-        public async Task<IActionResult> GetProductCount()
-        {
-            var value = await _statisticService.GetProductCount();
-            return Ok(value);
-        }
+            var result = new ResultStatisticsDto
+            {
+                BrandCount = await brandCountTask,
+                CategoryCount = await categoryCountTask ,
+                ProductCount = await productCountTask, 
+                ProductAvgPrice = await productAvgPriceTask ,
+                MaxPriceProductName = await maxPriceProductNameTask ?? "N/A",
+                MinPriceProductName = await minPriceProductNameTask ?? "N/A"
+            };
 
-        [HttpGet("GetProductAvgPrice")]
-        public async Task<IActionResult> GetProductAvgPrice()
-        {
-            var value = await _statisticService.GetProductAvgPrice();
-            return Ok(value);
-        } 
-        
-        
-        [HttpGet("GetMaxPriceProductName")]
-        public async Task<IActionResult> GetMaxPriceProductName()
-        {
-            var value = await _statisticService.GetMaxPriceProductName();
-            return Ok(value);
-        }  
-        
-        [HttpGet("GetMinPriceProductName")]
-        public async Task<IActionResult> GetMinPriceProductName()
-        {
-            var value = await _statisticService.GetMinPriceProductName();
-            return Ok(value);
+            return Ok(result);
         }
     }
 }
