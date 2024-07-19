@@ -1,0 +1,76 @@
+﻿@model List<ResultAboutDto>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/AdminLayout/Index.cshtml";
+}
+
+<section class="content container-fluid">
+    <div class="row">
+
+        <div class="col-md-12">
+            <div class="chart-box">
+                <div class="bs-example" data-example-id="bordered-table">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Açıklama</th>
+                                <th>Adres</th>
+                                <th>Email</th>
+                                <th>Telefon</th>
+                                <th>Sil</th>
+                                <th>Güncelle</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Description</td>
+                                    <td>@item.Address</td>
+                                    <td>@item.Email</td>
+                                    <td>@item.Phone</td>
+                                    <td>
+                                        <button onclick="deleteAboutConfirm('@item.AboutId')" class="btn btn-outline-danger">Sil</button>
+                                    </td>
+                                    <td><a href="/Admin/About/UpdateAbout/@item.AboutId" class="btn btn-success">Güncelle</a></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <a href="/Admin/About/CreateAbout/" class="btn btn-primary">Yeni Hakkımda Alanı Girişi</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    function deleteAboutConfirm(aboutID) {
+        Swal.fire({
+            title: 'Bu Hakkımzıda yazısını silmek istediğinize emin misiniz?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Evet, sil!',
+            cancelButtonText: 'Hayır, iptal et!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch("/Admin/About/DeleteAbout/" + aboutID, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        Swal.fire('Silindi!', 'Hakkımızda yazısı başarıyla silindi.', 'success').then(() => {
+                            window.location.reload();
+                        });
+                    } else {
+                        Swal.fire('Hata!', 'Silme işlemi başarısız oldu.', 'error');
+                    }
+                }).catch(error => {
+                    Swal.fire('Hata!', 'Silme işlemi sırasında hata oluştu.', 'error');
+                });
+            }
+        });
+    }
+</script>

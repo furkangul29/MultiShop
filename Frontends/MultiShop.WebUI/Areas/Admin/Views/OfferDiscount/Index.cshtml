@@ -1,0 +1,68 @@
+﻿@model List<ResultOfferDiscountDto>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/AdminLayout/Index.cshtml";
+}
+
+<section class="content container-fluid">
+    <div class="row">
+
+        <div class="col-md-12">
+            <div class="chart-box">
+                <div class="bs-example" data-example-id="bordered-table">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>İndirim Teklif Başlığı</th>
+                                <th>İndirim Teklif Alt Başlığı</th>
+                                <th>Sil</th>
+                                <th>Güncelle</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.Title</td>
+                                    <td>@item.SubTitle</td>
+                                    <td>
+                                        <button onclick="deleteOfferDiscountConfirm('@item.OfferDiscountId')" class="btn btn-outline-danger">Sil</button>
+                                    </td>
+                                    <td><a href="/Admin/OfferDiscount/UpdateOfferDiscount/@item.OfferDiscountId" class="btn btn-success">Güncelle</a></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <a href="/Admin/OfferDiscount/CreateOfferDiscount/" class="btn btn-primary">Yeni İndirim Teklifi Girişi</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    function deleteOfferDiscountConfirm(offerDiscountID) {
+        Swal.fire({
+            title: 'Bu İndirim Teklifini silmek istediğinize emin misiniz?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Evet, sil!',
+            cancelButtonText: 'Hayır, iptal et!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "/Admin/OfferDiscount/DeleteOfferDiscount/" + offerDiscountID,
+                    type: 'DELETE',
+                    success: function () {
+                        Swal.fire('Silindi!', 'İndirim Teklifi başarıyla silindi.', 'success').then(() => {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (err) {
+                        Swal.fire('Hata!', 'Silme işlemi başarısız oldu.', 'error');
+                    }
+                });
+            }
+        });
+    }
+</script>

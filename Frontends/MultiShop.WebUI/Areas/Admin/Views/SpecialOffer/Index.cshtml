@@ -1,0 +1,68 @@
+﻿@model List<ResultSpecialOfferDto>
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/AdminLayout/Index.cshtml";
+}
+
+<section class="content container-fluid">
+    <div class="row">
+
+        <div class="col-md-12">
+            <div class="chart-box">
+                <div class="bs-example" data-example-id="bordered-table">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Teklif Başlığı</th>
+                                <th>Teklif Alt Başlığı</th>
+                                <th>Sil</th>
+                                <th>Güncelle</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <th scope="row">@item.Title</th>
+                                    <td>@item.SubTitle</td>
+                                    <td>
+                                        <button onclick="deleteSpecialOfferConfirm('@item.SpecialOfferId')" class="btn btn-outline-danger">Sil</button>
+                                    </td>
+                                    <td><a href="/Admin/SpecialOffer/UpdateSpecialOffer/@item.SpecialOfferId" class="btn btn-success">Güncelle</a></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                    <a href="/Admin/SpecialOffer/CreateSpecialOffer/" class="btn btn-primary">Yeni Teklif Girişi</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    function deleteSpecialOfferConfirm(specialOfferId) {
+        Swal.fire({
+            title: 'Bu Özetl Teklifi silmek istediğinize emin misiniz?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Evet, sil!',
+            cancelButtonText: 'Hayır, iptal et!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: "/Admin/SpecialOffer/DeleteSpecialOffer/" + specialOfferId,
+                    type: 'DELETE',
+                    success: function () {
+                        Swal.fire('Silindi!', 'Özel Teklif başarıyla silindi.', 'success').then(() => {
+                            window.location.reload();
+                        });
+                    },
+                    error: function (err) {
+                        Swal.fire('Hata!', 'Silme işlemi başarısız oldu.', 'error');
+                    }
+                });
+            }
+        });
+    }
+</script>
