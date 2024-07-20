@@ -1,0 +1,59 @@
+﻿@model UpdateProductDetailDto
+
+@{
+    ViewData["Title"] = "UpdateProductDetail";
+    Layout = "~/Areas/Admin/Views/AdminLayout/Index.cshtml";
+}
+
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
+
+<section class="content container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="chart-box">
+                <h4>Ürün Açıklama ve Bilgi Güncelleme Sayfası</h4>
+                <br />
+                <div class="bs-example" data-example-id="bordered-table">
+                    <form method="post">
+                        <input type="hidden" asp-for="ProductDetailId" />
+                        <input type="hidden" asp-for="ProductId" />
+
+                        <label>Ürün Açıklaması</label>
+                        <div id="editor1" style="height: 200px;"></div>
+                        <textarea style="display:none;" asp-for="ProductDescription" id="ProductDescription">@Model.ProductDescription</textarea>
+                        <br />
+
+                        <label>Ürün Bilgisi</label>
+                        <div id="editor2" style="height: 200px;"></div>
+                        <textarea style="display:none;" asp-for="ProductInfo" id="ProductInfo">@Model.ProductInfo</textarea>
+                        <br />
+
+                        <button class="btn btn-success" type="submit">Bilgileri Güncelle</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    var quill1 = new Quill('#editor1', {
+        theme: 'snow'
+    });
+    var quill2 = new Quill('#editor2', {
+        theme: 'snow'
+    });
+
+    // Initial content from the server
+    var initialDescriptionContent = document.querySelector('textarea[name=ProductDescription]').value;
+    var initialInfoContent = document.querySelector('textarea[name=ProductInfo]').value;
+    quill1.clipboard.dangerouslyPasteHTML(initialDescriptionContent);
+    quill2.clipboard.dangerouslyPasteHTML(initialInfoContent);
+
+    // On form submission, set the value of the hidden textarea to the editor content
+    document.querySelector('form').onsubmit = function () {
+        document.querySelector('textarea[name=ProductDescription]').value = quill1.root.innerHTML;
+        document.querySelector('textarea[name=ProductInfo]').value = quill2.root.innerHTML;
+    };
+</script>

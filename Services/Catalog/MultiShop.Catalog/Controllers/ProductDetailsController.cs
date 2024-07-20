@@ -6,7 +6,7 @@ using MultiShop.Catalog.Services.ProductDetailDetailServices;
 
 namespace MultiShop.Catalog.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ProductDetailsController : ControllerBase
