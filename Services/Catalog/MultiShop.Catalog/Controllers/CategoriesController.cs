@@ -8,7 +8,7 @@ using static IdentityServer4.IdentityServerConstants;
 
 namespace MultiShop.Catalog.Controllers
 {
-    //[Authorize]
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class CategoriesController : ControllerBase

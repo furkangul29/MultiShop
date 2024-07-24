@@ -7,6 +7,36 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="Views\Shared\Components\_CarouselDefaultComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_CategoriesDefaultComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_ContactDetailComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_DirectoryAlertUILayoutComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_FeatureDefaultComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_FeatureProductsDefaultComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_FooterUILayoutComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_HeadUILayoutComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_NavbarUILayoutComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_OfferDiscountDefaultComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_OrderDetailComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_OrderSummaryComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_PaymentMethodComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_ProductDetailDescriptionComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_ProductDetailFeatureComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_ProductDetailImageSliderComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_ProductDetailInformationComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_ProductDetailReviewComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_ProductListColorFilterComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_ProductListComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_ProductListGetProductCountComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_ProductListPaginationComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_ProductListPriceFilterComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_ProductListSizeFilterComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_ScriptUILayoutComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_ShoppingCartDiscountCouponComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_ShoppingCartProductListComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_SpeacialOfferComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_TopbarUILayoutComponentPartial\Default.cshtml" />
+    <None Include="Views\Shared\Components\_VendorDefaultComponentPartial\Default.cshtml" />
     <None Include="wwwroot\js\site.js" />
     <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.css.map" />
     <None Include="wwwroot\lib\bootstrap\dist\css\bootstrap-grid.min.css.map" />
@@ -60,7 +90,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityModel.AspNetCore" Version="4.3.0" />
+    <PackageReference Include="IdentityModel.AspNetCore" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.32" />
     <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" Version="6.35.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.17" />

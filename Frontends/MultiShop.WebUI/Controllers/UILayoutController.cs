@@ -4,7 +4,7 @@ namespace MultiShop.WebUI.Controllers
 {
     public class UILayoutController : Controller
     {
-        public IActionResult Index()
+        public IActionResult _UILayout()
         {
             return View();
         }

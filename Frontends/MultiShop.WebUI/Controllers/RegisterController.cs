@@ -22,7 +22,6 @@ namespace MultiShop.WebUI.Controllers
         [HttpPost]
         public async Task<IActionResult> Index(CreateRegisterDto createRegisterDto)
         {
-
             if (createRegisterDto.Password == createRegisterDto.ConfirmPassword)
             {
                 var client = _httpClientFactory.CreateClient();
