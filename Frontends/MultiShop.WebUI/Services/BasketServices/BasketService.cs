@@ -12,20 +12,31 @@ namespace MultiShop.WebUI.Services.BasketServices
         public async Task AddBasketItem(BasketItemDto basketItemDto)
         {
             var values = await GetBasket();
-            if (values != null)
+
+            if (values == null)
             {
-                if (!values.BasketItems.Any(x => x.ProductId == basketItemDto.ProductId))
+                // Eğer sepet boşsa, yeni bir sepet oluştur.
+                values = new BasketTotalDto
                 {
-                    values.BasketItems.Add(basketItemDto);
-                }
-                else
-                {
-                    values = new BasketTotalDto();
-                    values.BasketItems.Add(basketItemDto);
-                }
+                    BasketItems = new List<BasketItemDto>()
+                };
             }
+
+            if (!values.BasketItems.Any(x => x.ProductId == basketItemDto.ProductId))
+            {
+                // Aynı üründen yoksa, ürünü sepete ekle.
+                values.BasketItems.Add(basketItemDto);
+            }
+            else
+            {
+                // Eğer ürün zaten sepette varsa, miktarını artır veya başka bir işlem yap.
+                var existingItem = values.BasketItems.First(x => x.ProductId == basketItemDto.ProductId);
+                existingItem.Quantity += basketItemDto.Quantity;
+            }
+
             await SaveBasket(values);
         }
+
 
         public Task DeleteBasket(string userId)
         {
