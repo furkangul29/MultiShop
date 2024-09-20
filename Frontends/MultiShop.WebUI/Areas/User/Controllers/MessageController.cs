@@ -4,7 +4,7 @@ namespace MultiShop.WebUI.Areas.User.Controllers
 {
     public class MessageController : Controller
     {
-        public IActionResult Index()
+        public IActionResult Inbox()
         {
             return View();
         }
