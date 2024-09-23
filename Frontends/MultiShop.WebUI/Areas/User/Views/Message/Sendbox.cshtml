@@ -1,7 +1,7 @@
-﻿@model List<ResultInboxMessageDto>
+﻿@model List<ResultSendboxMessageDto>
 
 @{
-    ViewData["Title"] = "Inbox";
+    ViewData["Title"] = "Sendbox";
     Layout = "~/Areas/User/Views/UserLayout/Index.cshtml";
     int count = 0;
 }
@@ -12,13 +12,13 @@
             <div class="col-lg-12 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
-                        <h4 class="card-title">Gelen Mesaj Listesi</h4>
+                        <h4 class="card-title">Gönderilen Mesaj Listesi</h4>
                         <div class="table-responsive pt-3">
                             <table class="table table-bordered">
                                 <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Gönderen</th>
+                                        <th>Alıcı</th>
                                         <th>Konu</th>
                                         <th>Tarih</th>
                                         <th>Durum</th>
