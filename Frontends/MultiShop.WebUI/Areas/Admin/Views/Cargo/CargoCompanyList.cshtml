@@ -1,14 +1,13 @@
-﻿@model List<ResultCategoryDto>
+﻿@model List<ResultCargoCompanyDto>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "CargoCompanyList";
     Layout = "~/Areas/Admin/Views/AdminLayout/Index.cshtml";
     int count = 0;
 }
 
 <section class="content container-fluid">
     <div class="row">
-
         <div class="col-md-12">
             <div class="chart-box">
                 <div class="bs-example" data-example-id="bordered-table">
@@ -16,7 +15,7 @@
                         <thead>
                             <tr>
                                 <th>#</th>
-                                <th>Kategori Adı</th>
+                                <th>Kargo Adı</th>
                                 <th>Sil</th>
                                 <th>Güncelle</th>
                             </tr>
@@ -27,32 +26,35 @@
                                 count++;
                                 <tr>
                                     <th scope="row">@count</th>
-                                    <td>@item.CategoryName</td>
+                                    <td>@item.cargoCompanyName</td>
                                     <td>
-                                        <button onclick="deleteCategoryConfirm('@item.CategoryID')" class="btn btn-outline-danger">Sil</button>
+                                        <button onclick="deleteCargoCompanyConfirm('@item.cargoCompanyId')" class="btn btn-outline-danger">Sil</button>
                                     </td>
-                                    <td><a href="/Admin/Category/UpdateCategory/@item.CategoryID" class="btn btn-success">Güncelle</a></td>
+                                    <td><a href="/Admin/Cargo/UpdateCargoCompany/@item.cargoCompanyId" class="btn btn-success">Güncelle</a></td>
                                 </tr>
                             }
                         </tbody>
                     </table>
-                    <a href="/Admin/Category/CreateCategory/" class="btn btn-primary">Yeni Kategori Girişi</a>
+                    <a href="/Admin/Cargo/CreateCargoCompany/" class="btn btn-primary">Yeni Kargo Firması Girişi</a>
                 </div>
             </div>
         </div>
+
+
+
     </div>
 </section>
 <script>
-    function deleteCategoryConfirm(categoryID) {
+    function deleteCargoCompanyConfirm(cargoCompanyId) {
         Swal.fire({
-            title: 'Bu Kategoriyi silmek istediğinize emin misiniz?',
+            title: 'Bu Kargo şirketini silmek istediğinize emin misiniz?',
             icon: 'warning',
             showCancelButton: true,
             confirmButtonText: 'Evet, sil!',
             cancelButtonText: 'Hayır, iptal et!'
         }).then((result) => {
             if (result.isConfirmed) {
-                fetch("/Admin/Category/DeleteCategory/" + categoryID, {
+                fetch("/Admin/Cargo/DeleteCargoCompany/" + cargoCompanyId, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json'
