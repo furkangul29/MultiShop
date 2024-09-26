@@ -62,5 +62,23 @@ namespace MultiShop.Comment.Controllers
             var value = _context.UserComments.Where(x => x.ProductId == id).ToList();
             return Ok(value);
         }
+        [HttpGet("GetActiveCommentCount")]
+        public IActionResult GetActiveCommentCount()
+        {
+            var value = _context.UserComments.Where(x => x.Status == true).Count();
+            return Ok(value);
+        }
+        [HttpGet("GetPassiveCommentCount")]
+        public IActionResult GetPassiveCommentCount()
+        {
+            var value = _context.UserComments.Where(x => x.Status == false).Count();
+            return Ok(value);
+        }
+        [HttpGet("GetTotalCommentCount")]
+        public IActionResult GetTotalCommentCount()
+        {
+            var value = _context.UserComments.Count();
+            return Ok(value);
+        }
     }
 }
