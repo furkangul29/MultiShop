@@ -22,18 +22,18 @@ namespace MultiShop.Catalog.Controllers
             var brandCountTask = _statisticService.GetBrandCount();
             var categoryCountTask = _statisticService.GetCategoryCount();
             var productCountTask = _statisticService.GetProductCount();
-            var productAvgPriceTask = _statisticService.GetProductAvgPrice();
+            //var productAvgPriceTask = _statisticService.GetProductAvgPrice();
             var maxPriceProductNameTask = _statisticService.GetMaxPriceProductName();
             var minPriceProductNameTask = _statisticService.GetMinPriceProductName();
 
-            await Task.WhenAll(brandCountTask, categoryCountTask, productCountTask, productAvgPriceTask, maxPriceProductNameTask, minPriceProductNameTask);
+            await Task.WhenAll(brandCountTask, categoryCountTask, productCountTask, maxPriceProductNameTask, minPriceProductNameTask);
 
             var result = new ResultStatisticsDto
             {
                 BrandCount = await brandCountTask,
                 CategoryCount = await categoryCountTask ,
                 ProductCount = await productCountTask, 
-                ProductAvgPrice = await productAvgPriceTask ,
+               // ProductAvgPrice = await productAvgPriceTask ,
                 MaxPriceProductName = await maxPriceProductNameTask ?? "N/A",
                 MinPriceProductName = await minPriceProductNameTask ?? "N/A"
             };
