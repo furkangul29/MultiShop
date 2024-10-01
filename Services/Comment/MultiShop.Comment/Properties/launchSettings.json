@@ -12,7 +12,7 @@
     "MultiShop.Comment": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "launchBrowser": false,
+      "launchBrowser": true,
       "launchUrl": "swagger",
       "applicationUrl": "https://localhost:7005;https://localhost:5203",
       "environmentVariables": {

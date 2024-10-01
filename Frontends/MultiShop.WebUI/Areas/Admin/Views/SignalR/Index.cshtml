@@ -1,0 +1,81 @@
+﻿@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Areas/Admin/Views/AdminLayout/Index.cshtml";
+}
+<script src="~/microsoft/signalr/dist/browser/signalr.min.js"></script>
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <script type="text/javascript">
+$(document).ready(() => {
+    var connection = new signalR.HubConnectionBuilder().withUrl("https://localhost:7120/SignalRHub").build();
+    
+    $("#connstatus").text(connection.state);
+    
+    function updateCommentCount() {
+        console.log("Invoking SendStatisticCount...");
+        connection.invoke("SendStatisticCount").catch((err) => {
+            console.error("Error invoking SendStatisticCount: ", err);
+            $("#commentcount").text("Hata: " + err);
+        });
+    }
+
+    connection.start().then(() => {
+        console.log("Connection started successfully.");
+        $("#connstatus").text(connection.state);
+        updateCommentCount();
+    }).catch((err) => { 
+        console.error("Error starting connection: ", err);
+        $("#connstatus").text("Bağlantı Hatası: " + err);
+    });
+
+    connection.on("ReceiveCommentCount", (totalCommentCount) => {
+        console.log("Received comment count: ", totalCommentCount);
+        $("#commentcount").text(totalCommentCount);
+    });
+
+    connection.on("ReceiveError", (errorMessage) => {
+        console.error("Received error from server: ", errorMessage);
+        $("#commentcount").text("Sunucu Hatası: " + errorMessage);
+    });
+
+    connection.onclose((error) => {
+        console.log("SignalR connection closed", error);
+        $("#connstatus").text("Bağlantı Kesildi");
+    });
+
+    // Her 10 saniyede bir yorum sayısını güncelle
+    setInterval(updateCommentCount, 10000);
+});
+            </script>
+        </div>
+    </div>
+</div>
+
+
+<section class="content container-fluid">
+    <div class="row">
+
+        <div class="col-md-12">
+            <div class="chart-box">
+                <div class="bs-example" data-example-id="bordered-table">
+                    <div class="col-md-8 offset-2">
+                        <div class="alert alert-primary">Bağlantının Durumu:<strong id="connstatus"></strong></div>
+                        <div class="alert alert-primary">Yorum Sayısı:<strong id="commentcount"></strong></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+</section>
+
+
