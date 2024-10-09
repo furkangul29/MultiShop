@@ -1,0 +1,55 @@
+﻿@{
+    ViewData["Title"] = "Weather Detail";
+    var tempCity = ViewBag.tempCity; // ViewBag'den sıcaklık değeri alınıyor
+    var cityName = ViewBag.CityName; // CityName'i ViewBag üzerinden alıyoruz
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .weather-container {
+            margin-top: 50px;
+        }
+
+        .weather-card {
+            padding: 20px;
+            border-radius: 10px;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container weather-container">
+        <h2 class="text-center">Hava Durumu Bilgisi</h2>
+        <form asp-action="WeatherDetail" method="get" class="text-center">
+            <div class="form-group">
+                <input type="text" name="cityName" class="form-control" placeholder="Şehir Adını Girin" required />
+            </div>
+            <button type="submit" class="btn btn-primary">Hava Durumunu Getir</button>
+        </form>
+
+        @if (tempCity != null)
+        {
+            <div class="weather-card mt-4">
+                <h3 class="text-center">Şehir: @cityName</h3> <!-- ViewBag.CityName kullanıldı -->
+                <p class="text-center" style="font-size: 24px;">Sıcaklık: @tempCity °C</p>
+            </div>
+        }
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

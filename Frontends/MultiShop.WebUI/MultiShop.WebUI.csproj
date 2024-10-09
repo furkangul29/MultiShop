@@ -144,6 +144,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\RapidApi\MultiShop.RapidApiWebUI\MultiShop.RapidApiWebUI.csproj" />
     <ProjectReference Include="..\MultiShop.DtoLayer\MultiShop.DtoLayer.csproj" />
   </ItemGroup>
 

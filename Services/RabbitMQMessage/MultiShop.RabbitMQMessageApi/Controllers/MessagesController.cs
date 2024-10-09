@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using System.Text;
 
 namespace MultiShop.RabbitMQMessageApi.Controllers
 {
@@ -16,9 +18,54 @@ namespace MultiShop.RabbitMQMessageApi.Controllers
                 HostName= "localhost",
 
             };
+
             var connection = connectionFactory.CreateConnection();
+
             var channel = connection.CreateModel();
+
+            channel.QueueDeclare("Kuyruk1", true, false, false, arguments:null);
+
+            var messageContent = "Merhaba RabbitMQ";
+
+            var byteMessageContent = Encoding.UTF8.GetBytes(messageContent);
+
+            channel.BasicPublish(exchange: "", routingKey: "Kuyruk1", basicProperties: null, body: byteMessageContent);
+
             return Ok("Mesajınız Kuyruga Alınmıstır.");
+        }
+
+        private static string message;
+
+        [HttpGet]
+        public IActionResult ReadMessage()
+        {
+     
+            var connectionFactory = new ConnectionFactory()
+            {
+                HostName = "localhost",
+            };
+
+            var connection = connectionFactory.CreateConnection();
+
+            var channel = connection.CreateModel();
+            
+            var consumer = new EventingBasicConsumer(channel);
+
+            consumer.Received += (model, ea) =>
+            {
+                var byteMessage = ea.Body.ToArray();
+               message = Encoding.UTF8.GetString(byteMessage);
+            };
+
+            channel.BasicConsume(queue: "Kuyruk1", autoAck: false, consumer: consumer);
+
+            if(string.IsNullOrEmpty(message))
+            {
+                return StatusCode(StatusCodes.Status204NoContent);
+            }
+            else {
+                return Ok(message);
+            }
         }
     }
 }
