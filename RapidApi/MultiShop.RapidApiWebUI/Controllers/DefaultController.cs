@@ -59,5 +59,30 @@ namespace MultiShop.RapidApiWebUI.Controllers
                 return weatherData;
             }
         }
+
+        public async Task<IActionResult> Exchange()
+        {
+            var client = new HttpClient();
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri("https://currency-conversion-and-exchange-rates.p.rapidapi.com/latest?from=USD&to=EUR%2CGBP%2CTRY"),
+                Headers =
+    {
+        { "x-rapidapi-key", _rapidApiKey },
+        { "x-rapidapi-host", "currency-conversion-and-exchange-rates.p.rapidapi.com" },
+    },
+            };
+            using (var response = await client.SendAsync(request))
+            {
+                response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadAsStringAsync();
+                var exchangeData = JsonConvert.DeserializeObject<ExchangeViewModel.Rootobject>(body);
+                return Json(exchangeData);
+
+            }
+
+        }
     }
+
 }

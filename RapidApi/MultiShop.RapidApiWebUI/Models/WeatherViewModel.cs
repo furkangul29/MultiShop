@@ -51,7 +51,7 @@
             public int vis_miles { get; set; }
             public float uv { get; set; }
             public float gust_mph { get; set; }
-            public int gust_kph { get; set; }
+            public float gust_kph { get; set; }
         }
 
         public class Condition

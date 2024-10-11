@@ -27,7 +27,7 @@
             <h5 class="m-0">+90 123 456 6789</h5>
             @if (ViewBag.tempCity != null)
             {
-                <h5 class="m-0">Hava Durumu: @ViewBag.tempCity °C</h5>
+                <h5 class="m-0">@ViewBag.CityName: @ViewBag.Temprature °C</h5>
             }
             else if (ViewBag.ErrorMessage != null)
             {

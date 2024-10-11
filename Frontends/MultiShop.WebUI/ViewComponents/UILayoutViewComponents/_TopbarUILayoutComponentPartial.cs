@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MultiShop.RapidApiWebUI.Controllers;
+using MultiShop.RapidApiWebUI.Models;
+using Newtonsoft.Json;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -7,47 +8,76 @@ namespace MultiShop.WebUI.ViewComponents.UILayoutViewComponents
 {
     public class _TopbarUILayoutComponentPartial : ViewComponent
     {
-        private readonly DefaultController _defaultController;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly string _rapidApiKey;
 
-        public _TopbarUILayoutComponentPartial(DefaultController defaultController, IHttpContextAccessor httpContextAccessor)
+        public _TopbarUILayoutComponentPartial(IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
-            _defaultController = defaultController;
-            _httpContextAccessor = httpContextAccessor;
+            _httpClientFactory = httpClientFactory;
+            _rapidApiKey = configuration["RapidApiKey"];
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            // Kullanıcının IP adresini alıyoruz
-            var ipAddress = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress?.ToString();
-            if (string.IsNullOrWhiteSpace(ipAddress))
-            {
-                ViewBag.ErrorMessage = "IP adresi bulunamadı.";
-                return View("Error");
-            }
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+            string cityName = await GetCityFromIpAsync(ipAddress);
 
-            // IP adresi ile şehir ismini alıyoruz
-            var cityName = await _defaultController.GetCityFromIpAsync(ipAddress);
-
-            if (string.IsNullOrWhiteSpace(cityName))
+            if (!string.IsNullOrWhiteSpace(cityName))
             {
-                ViewBag.ErrorMessage = "Şehir bilgisi bulunamadı.";
-                return View("Error");
-            }
-
-            // Şehir ismi ile hava durumu verilerini alıyoruz
-            var weatherData = await _defaultController.GetWeatherData(cityName);
-            if (weatherData?.current != null)
-            {
-                ViewBag.tempCity = weatherData.current.temp_c;
+                var weatherData = await GetWeatherData(cityName);
                 ViewBag.CityName = cityName;
+                ViewBag.Temperature = weatherData?.current?.temp_c;
             }
             else
             {
-                ViewBag.ErrorMessage = "Hava durumu verileri alınamadı.";
+                ViewBag.ErrorMessage = "Konum bilgisi alınamadı.";
             }
 
-            return View(weatherData);
+            return View();
+        }
+
+        private async Task<string> GetCityFromIpAsync(string ipAddress)
+        {
+            if (ipAddress == "127.0.0.1" || ipAddress == "::1")
+            {
+                return "Istanbul"; // Örnek şehir adı
+            }
+            var client = _httpClientFactory.CreateClient();
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri($"http://ip-api.com/json/{ipAddress}")
+            };
+
+            using (var response = await client.SendAsync(request))
+            {
+                response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadAsStringAsync();
+                var locationData = JsonConvert.DeserializeObject<dynamic>(body);
+                return locationData?.city;
+            }
+        }
+
+        private async Task<WeatherViewModel.Rootobject> GetWeatherData(string cityName)
+        {
+            var client = _httpClientFactory.CreateClient();
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Get,
+                RequestUri = new Uri($"https://weather-api-by-any-city.p.rapidapi.com/weather/{cityName}"),
+                Headers =
+                {
+                    { "x-rapidapi-key", _rapidApiKey },
+                    { "x-rapidapi-host", "weather-api-by-any-city.p.rapidapi.com" },
+                },
+            };
+
+            using (var response = await client.SendAsync(request))
+            {
+                response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<WeatherViewModel.Rootobject>(body);
+            }
         }
     }
 }
