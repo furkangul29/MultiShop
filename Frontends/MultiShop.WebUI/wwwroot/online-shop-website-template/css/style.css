@@ -6097,11 +6097,11 @@ a.close.disabled {
   background-color: #FFD333 !important;
 }
 
-a.bg-primary:hover, a.bg-primary:focus,
-button.bg-primary:hover,
-button.bg-primary:focus {
+/*a.bg-primary:hover, a.bg-primary:focus,
+button.bg-primary:hover,*/
+/*button.bg-primary:focus {
   background-color: #ffc800 !important;
-}
+}*/
 
 .bg-secondary {
   background-color: #F5F5F5 !important;

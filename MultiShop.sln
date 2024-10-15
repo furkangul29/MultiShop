@@ -85,10 +85,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RabbitMQMessage", "RabbitMQ
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MultiShop.RabbitMQMessageApi", "Services\RabbitMQMessage\MultiShop.RabbitMQMessageApi\MultiShop.RabbitMQMessageApi.csproj", "{3B734893-0AE0-480C-872F-D110D1512398}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "RapidApi", "RapidApi", "{9EAAEB23-D63C-4910-A1A6-A9DD920202C8}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MultiShop.RapidApiWebUI", "RapidApi\MultiShop.RapidApiWebUI\MultiShop.RapidApiWebUI.csproj", "{9FE5632B-6E04-4250-AF0C-BDC6752F1A41}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -187,10 +183,6 @@ Global
 		{3B734893-0AE0-480C-872F-D110D1512398}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B734893-0AE0-480C-872F-D110D1512398}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B734893-0AE0-480C-872F-D110D1512398}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9FE5632B-6E04-4250-AF0C-BDC6752F1A41}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9FE5632B-6E04-4250-AF0C-BDC6752F1A41}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9FE5632B-6E04-4250-AF0C-BDC6752F1A41}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9FE5632B-6E04-4250-AF0C-BDC6752F1A41}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -233,7 +225,6 @@ Global
 		{59EA62D3-4C69-4F8C-BBCF-E97E914E9208} = {8437C35A-A163-4C31-B0C7-DF8F37C501E5}
 		{E68ECC1D-ADF0-4B65-9275-2A1818B5288B} = {80836CD9-9C09-484E-866F-17597B092986}
 		{3B734893-0AE0-480C-872F-D110D1512398} = {E68ECC1D-ADF0-4B65-9275-2A1818B5288B}
-		{9FE5632B-6E04-4250-AF0C-BDC6752F1A41} = {9EAAEB23-D63C-4910-A1A6-A9DD920202C8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9E52A145-6147-4FCA-AF87-6906EFA79CBD}

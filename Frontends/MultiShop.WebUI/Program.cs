@@ -204,7 +204,21 @@ builder.Services.AddLocalization(opt => { opt.ResourcesPath = "Resources"; });
 
 builder.Services.AddMvc().AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix).AddDataAnnotationsLocalization();
 
+var supportedCultures = new[]
+{
+    new CultureInfo("tr-TR"),
+    new CultureInfo("en-US"),
+    new CultureInfo("fr-FR"),
+    new CultureInfo("de-DE"),
+    new CultureInfo("it-IT")
+};
 
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(supportedCultures[0]);
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});
 
 var app = builder.Build();
 
@@ -226,25 +240,14 @@ app.UseAuthentication();
 
 app.UseAuthorization();
 
-var supportedCultures = new[]
-{
-    new CultureInfo("tr-TR"),
-    new CultureInfo("en-US"),
-    new CultureInfo("fr-FR"),
-    new CultureInfo("de-DE"),
-    new CultureInfo("it-IT")
-};
+
 
 // Kültür ayarlarýný ekle
-builder.Services.Configure<RequestLocalizationOptions>(options =>
-{
-    options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(supportedCultures[0]);
-    options.SupportedCultures = supportedCultures;
-    options.SupportedUICultures = supportedCultures;
-});
+
 
 var localizationOptions = app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value;
 app.UseRequestLocalization(localizationOptions); ;
+
 
 
 app.MapControllerRoute(
