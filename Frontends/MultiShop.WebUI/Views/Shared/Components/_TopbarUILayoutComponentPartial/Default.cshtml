@@ -17,18 +17,58 @@
                 padding-right: 15px;
             }
         }
-        .weather-info {
-            position: relative;
-            display: inline-flex;
+        .info-container {
+            display: flex;
+            justify-content: space-between; /* Alanı eşit dağıt */
             align-items: center;
+        }
+        .phone-info {
+            margin-right: 20px; /* Telefon numarasını diğer bilgilerden ayır */
+            text-align: right;
+        }
+        .weather-info, .exchange-info {
+            display: inline-flex;
+            flex-direction: column;
             background-color: rgba(255, 255, 255, 0.9);
             border-radius: 8px;
             padding: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        }                                                                                                                                                      j                                                                                                             
-        .weather-info:hover {
+            margin-left: 10px;
+            height: 120px;
+            min-width: 150px; /* Kartları genişlet */
+        }
+        .exchange-info {
+            margin-left: 20px;
+        }
+        .weather-info:hover, .exchange-info:hover {
             transform: scale(1.05);
         }
+        .exchange-rates {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* Döviz kurları daha düzenli */
+            gap: 5px;
+        }
+        .exchange-rate {
+            display: flex;
+            align-items: center;
+        }
+        .currency-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 12px;
+            color: white;
+            font-weight: bold;
+        }
+        .usd { background-color: #85bb65; }
+        .gbp { background-color: #3a5f8a; }
+        .jpy { background-color: #bc002d; }
+        .cny { background-color: #de2910; }
+        .try { background-color: #e30a17; }
     </style>
 </head>
 <body>
@@ -54,24 +94,60 @@
                             </div>
                         </form>
                     </div>
-                    <div class="col-lg-4 col-6 text-right d-flex align-items-center justify-content-end">
-                        <div class="mr-3">
-                            <p class="m-0">Telefon Numaramız</p>
-                            <h5 class="m-0">+90 123 456 6789</h5>
-                        </div>
-                        <div class="weather-info">
-                            <i class="fas fa-sun" style="font-size: 30px; color: #FFCC00;"></i>
-                            <div class="ml-2 text-left">
-                                <h5 class="m-0">İstanbul</h5>
-                                <p class="m-0 font-weight-bold" style="font-size: 1.2rem;">19.0°C</p>
+                    <div class="col-lg-4 col-6 d-flex align-items-center justify-content-end">
+                        <div class="info-container">
+                            <div class="phone-info">
+                                <p class="m-0">Telefon Numaramız</p>
+                                <h5 class="m-0">+90 123 456 6789</h5>
                             </div>
+                            @if (!string.IsNullOrEmpty(ViewBag.CityName) && !string.IsNullOrEmpty(ViewBag.Temperature))
+                            {
+                                <div class="weather-info">
+                                    <i class="@ViewBag.WeatherIcon" style="font-size: 30px; color: #FFCC00;"></i>
+                                    <div class="ml-2 text-left">
+                                        <h5 class="m-0">@ViewBag.CityName</h5>
+                                        <p class="m-0 font-weight-bold" style="font-size: 1.2rem;">@ViewBag.Temperature°C</p>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <p>@ViewBag.ErrorMessage</p>
+                            }
+                            @if (Model != null && Model.rates != null)
+                            {
+                                <div class="exchange-info">
+                                    <h6 class="text-center mb-2">1 EUR Karşılığı</h6>
+                                    <div class="exchange-rates">
+                                        <div class="exchange-rate">
+                                            <span class="currency-icon usd">$</span>
+                                            <span>@Model.rates.USD.ToString("F2")</span>
+                                        </div>
+                                        <div class="exchange-rate">
+                                            <span class="currency-icon gbp">£</span>
+                                            <span>@Model.rates.GBP.ToString("F2")</span>
+                                        </div>
+                                        <div class="exchange-rate">
+                                            <span class="currency-icon jpy">¥</span>
+                                            <span>@Model.rates.JPY.ToString("F2")</span>
+                                        </div>
+                                        <div class="exchange-rate">
+                                            <span class="currency-icon cny">元</span> <!-- Çin Yuanı sembolü -->
+                                            <span>@Model.rates.CNY.ToString("F2")</span>
+                                        </div>
+                                        <div class="exchange-rate">
+                                            <span class="currency-icon try">₺</span>
+                                            <span>@Model.rates.TRY.ToString("F2")</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

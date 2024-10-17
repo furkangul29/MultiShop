@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MultiShop.DtoLayer.CatalogDtos.ProductDtos;
 using MultiShop.DtoLayer.CommentDtos;
+using MultiShop.WebUI.Models;
 using Newtonsoft.Json;
 using System.Text;
 
@@ -19,6 +21,24 @@ namespace MultiShop.WebUI.Controllers
             ViewBag.directory3 = "Ürün Listesi";
             ViewBag.CategoryId = id;
             return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ApplyFilters([FromBody] FilterViewModel filters)
+        {
+            var client = _httpClientFactory.CreateClient();
+            var jsonFilters = JsonConvert.SerializeObject(filters);
+            var content = new StringContent(jsonFilters, Encoding.UTF8, "application/json");
+            var responseMessage = await client.PostAsync("https://localhost:7005/api/Products/GetFilteredProducts", content);
+
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var jsonData = await responseMessage.Content.ReadAsStringAsync();
+                var filteredProducts = JsonConvert.DeserializeObject<List<ProductDto>>(jsonData);
+                return View("Index", filteredProducts);
+            }
+
+            return View("Index", new List<ProductDto>());
         }
 
         public IActionResult ProductDetail(string id)

@@ -1,4 +1,5 @@
 ﻿using MultiShop.Catalog.Dtos.ProductDtos;
+using MultiShop.DtoLayer.CatalogDtos.ProductDtos;
 
 namespace MultiShop.Catalog.Services.ProductServices
 {
@@ -11,5 +12,6 @@ namespace MultiShop.Catalog.Services.ProductServices
         Task<GetByIdProductDto> GetByIdProductAsync(string id);
         Task<List<ResultProductsWithCategoryDto>> GetProductsWithCategoryAsync();
         Task<List<ResultProductsWithCategoryDto>> GetProductsWithCategoryByCatetegoryIdAsync(string CategoryId);
+        Task<List<ResultProductsWithCategoryDto>> GetFilteredProductsAsync(ProductFilterDto filterDto);
     }
 }

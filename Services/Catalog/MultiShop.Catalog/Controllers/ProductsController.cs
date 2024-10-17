@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using MultiShop.Catalog.Dtos.ProductDtos;
 using MultiShop.Catalog.Services.ProductServices;
+using MultiShop.DtoLayer.CatalogDtos.ProductDtos;
 
 namespace MultiShop.Catalog.Controllers
 {
@@ -63,6 +64,13 @@ namespace MultiShop.Catalog.Controllers
         public async Task<IActionResult> ProductListWithCategoryByCategoryId(string id)
         {
             var values = await _productService.GetProductsWithCategoryByCatetegoryIdAsync(id);
+            return Ok(values);
+        }
+        // Yeni filtreleme endpoint'i
+        [HttpPost("GetFilteredProducts")]
+        public async Task<IActionResult> GetFilteredProducts(ProductFilterDto filterDto)
+        {
+            var values = await _productService.GetFilteredProductsAsync(filterDto);
             return Ok(values);
         }
     }

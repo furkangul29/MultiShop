@@ -4,6 +4,7 @@ using MultiShop.Catalog.Dtos.CategoryDtos;
 using MultiShop.Catalog.Dtos.ProductDtos;
 using MultiShop.Catalog.Entites;
 using MultiShop.Catalog.Settings;
+using MultiShop.DtoLayer.CatalogDtos.ProductDtos;
 
 namespace MultiShop.Catalog.Services.ProductServices
 {
@@ -33,6 +34,49 @@ namespace MultiShop.Catalog.Services.ProductServices
         {
             var values = await _productCollection.Find<Product>(x => x.ProductId == id).FirstOrDefaultAsync();
             return _mapper.Map<GetByIdProductDto>(values);
+        }
+
+        public async Task<List<ResultProductsWithCategoryDto>> GetFilteredProductsAsync(ProductFilterDto filterDto)
+        {
+            // Dinamik filtreleme için MongoDB filtre sorguları oluşturuyoruz
+            var filter = Builders<Product>.Filter.Empty;
+
+            // Fiyat aralığı filtreleme
+            if (filterDto.MinPrice.HasValue && filterDto.MaxPrice.HasValue)
+            {
+                filter &= Builders<Product>.Filter.Gte(x => x.ProductPrice, filterDto.MinPrice.Value)
+                       & Builders<Product>.Filter.Lte(x => x.ProductPrice, filterDto.MaxPrice.Value);
+            }
+
+            // Renk filtreleme
+            if (!string.IsNullOrEmpty(filterDto.Color))
+            {
+                filter &= Builders<Product>.Filter.Eq(x => x.Color, filterDto.Color);
+            }
+
+            // Boyut filtreleme
+            if (!string.IsNullOrEmpty(filterDto.Size))
+            {
+                filter &= Builders<Product>.Filter.Eq(x => x.Size, filterDto.Size);
+            }
+
+            // Kategori ID filtreleme
+            if (!string.IsNullOrEmpty(filterDto.CategoryId))
+            {
+                filter &= Builders<Product>.Filter.Eq(x => x.CategoryId, filterDto.CategoryId);
+            }
+
+            // Filtrelenmiş ürünleri sorguluyoruz
+            var products = await _productCollection.Find(filter).ToListAsync();
+
+            // Ürünlere ait kategorileri sorguluyoruz
+            foreach (var item in products)
+            {
+                item.Category = await _categoryCollection.Find<Category>(x => x.CategoryId == item.CategoryId).FirstOrDefaultAsync();
+            }
+
+            // DTO'ya dönüştürüp sonuçları döndürüyoruz
+            return _mapper.Map<List<ResultProductsWithCategoryDto>>(products);
         }
 
         public async Task<List<ResultProductsWithCategoryDto>> GetProductsWithCategoryAsync()

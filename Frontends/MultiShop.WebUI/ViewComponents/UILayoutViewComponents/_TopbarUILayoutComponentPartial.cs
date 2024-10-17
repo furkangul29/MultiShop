@@ -19,49 +19,50 @@ namespace MultiShop.WebUI.ViewComponents.UILayoutViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-            var exchangeData = await GetExchangeRatesAsync();
-            
-            string cityName = await GetCityFromIpAsync(ipAddress);
+            //var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+            //var exchangeData = await GetExchangeRatesAsync();
 
-            if (!string.IsNullOrWhiteSpace(cityName))
-            {
-                var weatherData = await GetWeatherData(cityName);
+            //string cityName = await GetCityFromIpAsync(ipAddress);
 
-                // Hava durumu verilerini ViewBag'e atıyoruz
-                ViewBag.CityName = cityName;
-                ViewBag.Temperature = weatherData?.list[0]?.main?.temp.ToString("0.0"); // Celsius değeri, virgülden sonra bir hane
+            //if (!string.IsNullOrWhiteSpace(cityName))
+            //{
+            //    var weatherData = await GetWeatherData(cityName);
 
-                // Hava durumu durumuna göre simge seçimi
-                var weatherCondition = weatherData?.list[0]?.weather[0]?.main.ToLower();
-                switch (weatherCondition)
-                {
-                    case "clear":
-                        ViewBag.WeatherIcon = "fas fa-sun"; // Güneş
-                        break;
-                    case "clouds":
-                        ViewBag.WeatherIcon = "fas fa-cloud"; // Bulut
-                        break;
-                    case "rain":
-                        ViewBag.WeatherIcon = "fas fa-cloud-showers-heavy"; // Yağmur
-                        break;
-                    case "snow":
-                        ViewBag.WeatherIcon = "fas fa-snowflake"; // Kar
-                        break;
-                    case "thunderstorm":
-                        ViewBag.WeatherIcon = "fas fa-bolt"; // Fırtına
-                        break;
-                    default:
-                        ViewBag.WeatherIcon = "fas fa-question-circle"; // Bilinmeyen hava durumu
-                        break;
-                }
-            }
-            else
-            {
-                ViewBag.ErrorMessage = "Konum bilgisi alınamadı.";
-            }
+            //    // Hava durumu verilerini ViewBag'e atıyoruz
+            //    ViewBag.CityName = cityName;
+            //    ViewBag.Temperature = weatherData?.list[0]?.main?.temp.ToString("0.0"); // Celsius değeri, virgülden sonra bir hane
 
-            return View(exchangeData);
+            //    // Hava durumu durumuna göre simge seçimi
+            //    var weatherCondition = weatherData?.list[0]?.weather[0]?.main.ToLower();
+            //    switch (weatherCondition)
+            //    {
+            //        case "clear":
+            //            ViewBag.WeatherIcon = "fas fa-sun"; // Güneş
+            //            break;
+            //        case "clouds":
+            //            ViewBag.WeatherIcon = "fas fa-cloud"; // Bulut
+            //            break;
+            //        case "rain":
+            //            ViewBag.WeatherIcon = "fas fa-cloud-showers-heavy"; // Yağmur
+            //            break;
+            //        case "snow":
+            //            ViewBag.WeatherIcon = "fas fa-snowflake"; // Kar
+            //            break;
+            //        case "thunderstorm":
+            //            ViewBag.WeatherIcon = "fas fa-bolt"; // Fırtına
+            //            break;
+            //        default:
+            //            ViewBag.WeatherIcon = "fas fa-question-circle"; // Bilinmeyen hava durumu
+            //            break;
+            //    }
+            //}
+            //else
+            //{
+            //    ViewBag.ErrorMessage = "Konum bilgisi alınamadı.";
+            //}
+
+            //return View(exchangeData);
+            return View();
         }
 
 

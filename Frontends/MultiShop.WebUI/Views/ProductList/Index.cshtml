@@ -4,28 +4,63 @@
 }
 
 @await Component.InvokeAsync("_DirectoryAlertUILayoutComponentPartial")
-
 <div class="container-fluid">
     <div class="row px-xl-5">
         <div class="col-lg-3 col-md-4">
-
             @await Component.InvokeAsync("_ProductListPriceFilterComponentPartial")
             @await Component.InvokeAsync("_ProductListColorFilterComponentPartial")
-
             @await Component.InvokeAsync("_ProductListSizeFilterComponentPartial")
-
         </div>
-
         <div class="col-lg-9 col-md-8">
             <div class="row pb-3">
-
                 @await Component.InvokeAsync("_ProductListGetProductCountComponentPartial")
-
-                @await Component.InvokeAsync("_ProductListComponentPartial", new { id = ViewBag.CategoryId })
-
+                <div id="productListContainer">
+                    @await Component.InvokeAsync("_ProductListComponentPartial", new { id = ViewBag.CategoryId })
+                </div>
                 @await Component.InvokeAsync("_ProductListPaginationComponentPartial")
-
             </div>
         </div>
     </div>
 </div>
+
+    <script>
+        $(document).ready(function () {
+            $('input[type="checkbox"]').on('change', function () {
+                applyFilters();
+            });
+
+            function applyFilters() {
+                var filters = {
+                    SelectedColors: [],
+                    SelectedPrices: [],
+                    SelectedSizes: []
+                };
+
+                $('input[type="checkbox"]:checked').each(function () {
+                    var filterType = $(this).data('filter-type');
+                    var value = $(this).val();
+
+                    if (filterType === 'color') {
+                        filters.SelectedColors.push(value);
+                    } else if (filterType === 'price') {
+                        filters.SelectedPrices.push(value);
+                    } else if (filterType === 'size') {
+                        filters.SelectedSizes.push(value);
+                    }
+                });
+
+                $.ajax({
+                    url: '@Url.Action("ApplyFilters", "ProductList")',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(filters),
+                    success: function (result) {
+                        $('#productListContainer').html(result);
+                    },
+                    error: function (error) {
+                        console.log('Error:', error);
+                    }
+                });
+            }
+        });
+    </script>
