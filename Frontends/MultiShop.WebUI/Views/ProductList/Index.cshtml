@@ -15,7 +15,19 @@
             <div class="row pb-3">
                 @await Component.InvokeAsync("_ProductListGetProductCountComponentPartial")
                 <div id="productListContainer">
-                    @await Component.InvokeAsync("_ProductListComponentPartial", new { id = ViewBag.CategoryId })
+                    @if (ViewBag.FilteredProducts != null && ViewBag.FilteredProducts.Any())
+                    {
+                        @await Component.InvokeAsync("_ProductListComponentPartial", new { id = ViewBag.CategoryId, filteredProducts = ViewBag.FilteredProducts })
+                    }
+                    else if (ViewBag.FilteredProducts == null)
+                    {
+                        // İlk yükleme veya filtre olmadan tüm ürünleri göster
+                        @await Component.InvokeAsync("_ProductListComponentPartial", new { id = ViewBag.CategoryId })
+                    }
+                    else
+                    {
+                        <p>@ViewBag.Message ?? "Aradığınız kriterlere uygun ürün bulunamadı."</p>
+                    }
                 </div>
                 @await Component.InvokeAsync("_ProductListPaginationComponentPartial")
             </div>
@@ -23,44 +35,65 @@
     </div>
 </div>
 
-    <script>
-        $(document).ready(function () {
-            $('input[type="checkbox"]').on('change', function () {
-                applyFilters();
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('input[type="checkbox"]').on('change', function () {
+            applyFilters();
+        });
+
+        function applyFilters() {
+            var filters = {
+                SelectedColors: [],
+                SelectedPrices: [],
+                SelectedSizes: [],
+                CategoryId: '@ViewBag.CategoryId'
+            };
+
+            console.log("Başlangıç filtreleri:", filters); // Başlangıç filtrelerini yazdır
+
+            $('input[type="checkbox"]:checked').each(function () {
+                var filterType = $(this).data('filter-type');
+                var value = $(this).val();
+
+                console.log("Filtre türü:", filterType, "Değer:", value); // Her filtre türü ve değerini yazdır
+
+                if (filterType === 'color') {
+                    filters.SelectedColors.push(value);
+                } else if (filterType === 'price') {
+                    var priceRange = value.split('-');
+                    filters.SelectedPrices.push({
+                        MinPrice: parseFloat(priceRange[0]),
+                        MaxPrice: parseFloat(priceRange[1])
+                    });
+                } else if (filterType === 'size') {
+                    filters.SelectedSizes.push(value);
+                }
             });
 
-            function applyFilters() {
-                var filters = {
-                    SelectedColors: [],
-                    SelectedPrices: [],
-                    SelectedSizes: []
-                };
+            console.log("AJAX isteği gönderiliyor:", filters); // Gönderilecek son filtreleri yazdır
 
-                $('input[type="checkbox"]:checked').each(function () {
-                    var filterType = $(this).data('filter-type');
-                    var value = $(this).val();
+            $.ajax({
+                url: '@Url.Action("ApplyFilters", "ProductList")',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(filters),
+                 success: function (result) {
+        if (result.length > 0) {
+            // Ürünler varsa işlemleri yap
+            $('#productListContainer').html(result);
+        } else {
+            // Ürün yoksa mesaj göster
+            $('#productListContainer').html("<p>Aradığınız kriterlere uygun ürün bulunamadı.</p>");
+        }
+    },
+                error: function (error) {
+                    console.error("Hata oluştu:", error); // Hata mesajını ve ayrıntılarını konsola yazdır
+                }
+            });
+        }
+    });
+</script>
 
-                    if (filterType === 'color') {
-                        filters.SelectedColors.push(value);
-                    } else if (filterType === 'price') {
-                        filters.SelectedPrices.push(value);
-                    } else if (filterType === 'size') {
-                        filters.SelectedSizes.push(value);
-                    }
-                });
 
-                $.ajax({
-                    url: '@Url.Action("ApplyFilters", "ProductList")',
-                    type: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(filters),
-                    success: function (result) {
-                        $('#productListContainer').html(result);
-                    },
-                    error: function (error) {
-                        console.log('Error:', error);
-                    }
-                });
-            }
-        });
-    </script>

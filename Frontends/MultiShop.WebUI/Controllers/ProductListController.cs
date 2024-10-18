@@ -2,6 +2,7 @@
 using MultiShop.DtoLayer.CatalogDtos.ProductDtos;
 using MultiShop.DtoLayer.CommentDtos;
 using MultiShop.WebUI.Models;
+using MultiShop.WebUI.Services.CatalogServices.ProductServices;
 using Newtonsoft.Json;
 using System.Text;
 
@@ -10,9 +11,11 @@ namespace MultiShop.WebUI.Controllers
     public class ProductListController : Controller
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        public ProductListController(IHttpClientFactory httpClientFactory)
+        private readonly IProductService _productService;
+        public ProductListController(IHttpClientFactory httpClientFactory, IProductService productService)
         {
             _httpClientFactory = httpClientFactory;
+            _productService = productService;
         }
         public IActionResult Index(string id)
         {
@@ -22,24 +25,61 @@ namespace MultiShop.WebUI.Controllers
             ViewBag.CategoryId = id;
             return View();
         }
-
+  
         [HttpPost]
         public async Task<IActionResult> ApplyFilters([FromBody] FilterViewModel filters)
         {
-            var client = _httpClientFactory.CreateClient();
-            var jsonFilters = JsonConvert.SerializeObject(filters);
-            var content = new StringContent(jsonFilters, Encoding.UTF8, "application/json");
-            var responseMessage = await client.PostAsync("https://localhost:7005/api/Products/GetFilteredProducts", content);
-
-            if (responseMessage.IsSuccessStatusCode)
+            if (filters == null)
             {
-                var jsonData = await responseMessage.Content.ReadAsStringAsync();
-                var filteredProducts = JsonConvert.DeserializeObject<List<ProductDto>>(jsonData);
-                return View("Index", filteredProducts);
+                return BadRequest("Filtreler boş olamaz.");
             }
 
-            return View("Index", new List<ProductDto>());
+            try
+            {
+                // FilterViewModel'dan ProductFilterDto'ya dönüştür
+                var productFilterDto = new ProductFilterDto
+                {
+                    CategoryId = filters.CategoryId,
+                    SelectedPrices = filters.SelectedPrices?.Select(p => new PriceRangeDto
+                    {
+                        MinPrice = p.MinPrice,
+                        MaxPrice = p.MaxPrice
+                    }).ToList(),
+                    SelectedColors = filters.SelectedColors,
+                    SelectedSizes = filters.SelectedSizes
+                };
+
+                // API'den filtrelenmiş ürünleri al
+                var filteredProducts = await _productService.GetFilteredProductsAsync(productFilterDto);
+
+                // Ürünler null veya boşsa, mesajı ViewBag'e ekle
+                if (filteredProducts == null || !filteredProducts.Any())
+                {
+                    ViewBag.Message = "Aradığınız kriterlere uygun ürün bulunamadı.";
+                    ViewBag.FilteredProducts = null;
+                }
+                else
+                {
+                    ViewBag.FilteredProducts = filteredProducts;
+                }
+
+                // Index görünümüne filteredProducts ile dön
+                Console.WriteLine("Filtered Products: " + JsonConvert.SerializeObject(filteredProducts));
+                return View("Index", filteredProducts);
+            }
+            catch (HttpRequestException)
+            {
+                ViewBag.Message = "Sunucuya bağlanırken bir hata oluştu. Lütfen daha sonra tekrar deneyin.";
+                return View("Index");
+            }
+            catch (Exception)
+            {
+                ViewBag.Message = "Bir hata oluştu. Lütfen daha sonra tekrar deneyin.";
+                return View("Index");
+            }
         }
+
+
 
         public IActionResult ProductDetail(string id)
         {

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using MultiShop.Catalog.Dtos.CategoryDtos;
 using MultiShop.Catalog.Dtos.ProductDtos;
@@ -38,46 +39,75 @@ namespace MultiShop.Catalog.Services.ProductServices
 
         public async Task<List<ResultProductsWithCategoryDto>> GetFilteredProductsAsync(ProductFilterDto filterDto)
         {
-            // Dinamik filtreleme için MongoDB filtre sorguları oluşturuyoruz
+            // Başlangıç filtresi boş olarak tanımlanıyor.
             var filter = Builders<Product>.Filter.Empty;
 
-            // Fiyat aralığı filtreleme
-            if (filterDto.MinPrice.HasValue && filterDto.MaxPrice.HasValue)
-            {
-                filter &= Builders<Product>.Filter.Gte(x => x.ProductPrice, filterDto.MinPrice.Value)
-                       & Builders<Product>.Filter.Lte(x => x.ProductPrice, filterDto.MaxPrice.Value);
-            }
-
-            // Renk filtreleme
-            if (!string.IsNullOrEmpty(filterDto.Color))
-            {
-                filter &= Builders<Product>.Filter.Eq(x => x.Color, filterDto.Color);
-            }
-
-            // Boyut filtreleme
-            if (!string.IsNullOrEmpty(filterDto.Size))
-            {
-                filter &= Builders<Product>.Filter.Eq(x => x.Size, filterDto.Size);
-            }
+            // Debug bilgileri için bir liste
+            var debugInfo = new List<string>();
 
             // Kategori ID filtreleme
             if (!string.IsNullOrEmpty(filterDto.CategoryId))
             {
                 filter &= Builders<Product>.Filter.Eq(x => x.CategoryId, filterDto.CategoryId);
+                debugInfo.Add($"Category filter applied: {filterDto.CategoryId}");
             }
 
-            // Filtrelenmiş ürünleri sorguluyoruz
-            var products = await _productCollection.Find(filter).ToListAsync();
-
-            // Ürünlere ait kategorileri sorguluyoruz
-            foreach (var item in products)
+            // Fiyat aralığı filtreleme (birden fazla fiyat aralığı seçilebilir)
+            if (filterDto.SelectedPrices != null && filterDto.SelectedPrices.Any())
             {
-                item.Category = await _categoryCollection.Find<Category>(x => x.CategoryId == item.CategoryId).FirstOrDefaultAsync();
+                var priceFilters = new List<FilterDefinition<Product>>();
+
+                foreach (var priceRange in filterDto.SelectedPrices)
+                {
+                    if (priceRange.MinPrice.HasValue && priceRange.MaxPrice.HasValue)
+                    {
+                        priceFilters.Add(Builders<Product>.Filter.And(
+                            Builders<Product>.Filter.Gte(x => x.ProductPrice, priceRange.MinPrice.Value),
+                            Builders<Product>.Filter.Lte(x => x.ProductPrice, priceRange.MaxPrice.Value)
+                        ));
+                        debugInfo.Add($"Price range filter applied: {priceRange.MinPrice.Value} - {priceRange.MaxPrice.Value}");
+                    }
+                }
+
+                // Fiyat aralığı filtrelerini OR ile birleştiriyoruz (çoklu fiyat aralığı)
+                if (priceFilters.Count > 0)
+                {
+                    filter &= Builders<Product>.Filter.Or(priceFilters);
+                }
             }
+
+            // Renk filtreleme
+            if (filterDto.SelectedColors != null && filterDto.SelectedColors.Any())
+            {
+                filter &= Builders<Product>.Filter.In(x => x.Color, filterDto.SelectedColors);
+                debugInfo.Add($"Color filter applied: {string.Join(", ", filterDto.SelectedColors)}");
+            }
+
+            // Beden filtreleme
+            if (filterDto.SelectedSizes != null && filterDto.SelectedSizes.Any())
+            {
+                filter &= Builders<Product>.Filter.In(x => x.Size, filterDto.SelectedSizes);
+                debugInfo.Add($"Size filter applied: {string.Join(", ", filterDto.SelectedSizes)}");
+            }
+
+            // Tüm filtreler tamamlandıktan sonra veritabanından ürünler çekiliyor
+            var products = await _productCollection.Find(filter).ToListAsync();
+            debugInfo.Add($"Total filtered products: {products.Count}");
+
+            // Ürün bilgilerini detaylı loglamak
+            foreach (var product in products)
+            {
+                debugInfo.Add($"Product: {product.ProductName}, Price: {product.ProductPrice}, CategoryId: {product.CategoryId}, Color: {product.Color}, Size: {product.Size}");
+            }
+
+            // Debug bilgilerini loglama (isteğe bağlı olarak)
+            //_logger.LogInformation("Filter Debug Info: " + string.Join("\n", debugInfo));
 
             // DTO'ya dönüştürüp sonuçları döndürüyoruz
             return _mapper.Map<List<ResultProductsWithCategoryDto>>(products);
         }
+
+
 
         public async Task<List<ResultProductsWithCategoryDto>> GetProductsWithCategoryAsync()
         {

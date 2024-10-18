@@ -1,5 +1,7 @@
 ﻿using MultiShop.DtoLayer.CatalogDtos.ProductDtos;
+using MultiShop.WebUI.Models;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace MultiShop.WebUI.Services.CatalogServices.ProductServices
 {
@@ -51,5 +53,19 @@ namespace MultiShop.WebUI.Services.CatalogServices.ProductServices
             var values = JsonConvert.DeserializeObject<List<ResultProductWithCategoryDto>>(jsonData);
             return values;
         }
+
+        public async Task<List<ResultProductDto>> GetFilteredProductsAsync(ProductFilterDto filters)
+        {
+            // API'den filtrelenmiş ürünleri al
+            var responseMessage = await _httpClient.PostAsJsonAsync("https://localhost:7000/api/Products/GetFilteredProducts", filters);
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var jsonData = await responseMessage.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<List<ResultProductDto>>(jsonData);
+            }
+
+            return new List<ResultProductDto>();
+        }
+
     }
 }

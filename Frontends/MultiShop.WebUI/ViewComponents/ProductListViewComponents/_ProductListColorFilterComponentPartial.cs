@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MultiShop.WebUI.Models;
+using System.Collections.Generic;
 
 namespace MultiShop.WebUI.ViewComponents.ProductListViewComponents
 {
-    public class _ProductListColorFilterComponentPartial:ViewComponent
+    public class _ProductListColorFilterComponentPartial : ViewComponent
     {
         public IViewComponentResult Invoke()
         {
@@ -16,6 +17,7 @@ namespace MultiShop.WebUI.ViewComponents.ProductListViewComponents
                 new FilterOption { Id = "color-4", Label = "Mavi", Value = "blue" },
                 new FilterOption { Id = "color-5", Label = "Yeşil", Value = "green" }
             };
+
             return View(colors);
         }
     }

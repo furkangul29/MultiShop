@@ -1,13 +1,15 @@
-﻿@model List<FilterOption>
+﻿@model List<MultiShop.WebUI.Models.FilterOption>
 
-<h5 class="section-title position-relative text-uppercase mb-3"><span class="bg-secondary pr-3">Fiyata Göre Filtrele</span></h5>
-<div class="bg-light p-4 mb-30">
-    @foreach (var option in Model)
+<div class="filter-section">
+    <h4>Fiyat</h4>
+    <ul>
+        @foreach (var option in Model)
 
-    {
-        <div class="custom-control custom-checkbox d-flex align-items-center justify-content-between mb-3">
-            <input type="checkbox" class="custom-control-input" id="@option.Id" value="@option.Value" data-filter-type="price">
-            <label class="custom-control-label" for="@option.Id">@option.Label</label>
-        </div>
-    }
+        {
+            <li>
+                <input type="checkbox" id="@option.Id" value="@option.Value" data-filter-type="price" />
+                <label for="@option.Id">@option.Label</label>
+            </li>
+        }
+    </ul>
 </div>
