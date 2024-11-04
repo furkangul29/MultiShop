@@ -35,65 +35,139 @@
     </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            // Debounce fonksiyonu
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
 
-<script>
-    $(document).ready(function () {
-        $('input[type="checkbox"]').on('change', function () {
-            applyFilters();
-        });
+            // Filtreleri uygula fonksiyonu
+            function applyFilters() {
+                var filters = {
+                    SelectedColors: [],
+                    SelectedPrices: [],
+                    SelectedSizes: [],
+                    CategoryId: '@ViewBag.CategoryId'
+                };
 
-        function applyFilters() {
-            var filters = {
-                SelectedColors: [],
-                SelectedPrices: [],
-                SelectedSizes: [],
-                CategoryId: '@ViewBag.CategoryId'
-            };
+                // Seçili checkbox'ları topla
+                $('input[data-filter-type="color"]:checked').each(function () {
+                    filters.SelectedColors.push($(this).val());
+                });
 
-            console.log("Başlangıç filtreleri:", filters); // Başlangıç filtrelerini yazdır
-
-            $('input[type="checkbox"]:checked').each(function () {
-                var filterType = $(this).data('filter-type');
-                var value = $(this).val();
-
-                console.log("Filtre türü:", filterType, "Değer:", value); // Her filtre türü ve değerini yazdır
-
-                if (filterType === 'color') {
-                    filters.SelectedColors.push(value);
-                } else if (filterType === 'price') {
-                    var priceRange = value.split('-');
+                // Checkbox price filtreleri
+                $('input[data-filter-type="price"]:checked').each(function () {
+                    var priceRange = $(this).val().split('-');
                     filters.SelectedPrices.push({
                         MinPrice: parseFloat(priceRange[0]),
                         MaxPrice: parseFloat(priceRange[1])
                     });
-                } else if (filterType === 'size') {
-                    filters.SelectedSizes.push(value);
-                }
-            });
+                });
 
-            console.log("AJAX isteği gönderiliyor:", filters); // Gönderilecek son filtreleri yazdır
-
-            $.ajax({
-                url: '@Url.Action("ApplyFilters", "ProductList")',
-                type: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(filters),
-                 success: function (result) {
-        if (result.length > 0) {
-            // Ürünler varsa işlemleri yap
-            $('#productListContainer').html(result);
-        } else {
-            // Ürün yoksa mesaj göster
-            $('#productListContainer').html("<p>Aradığınız kriterlere uygun ürün bulunamadı.</p>");
-        }
-    },
-                error: function (error) {
-                    console.error("Hata oluştu:", error); // Hata mesajını ve ayrıntılarını konsola yazdır
+                // Input değerlerini ekle
+                var minPrice = parseFloat($('#minPriceInput').val()) || 0;
+                var maxPrice = parseFloat($('#maxPriceInput').val()) || 5000;
+                if (minPrice !== 0 || maxPrice !== 5000) {
+                    filters.SelectedPrices.push({
+                        MinPrice: minPrice,
+                        MaxPrice: maxPrice
+                    });
                 }
+
+                // Beden filtreleri
+                $('input[data-filter-type="size"]:checked').each(function () {
+                    filters.SelectedSizes.push($(this).val());
+                });
+
+                // Loading göster
+                $('#productListContainer').html(`
+                            <div class="text-center py-5">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Yükleniyor...</span>
+                                </div>
+                                <div class="mt-2 text-muted">Ürünler filtreleniyor...</div>
+                            </div>
+                        `);
+
+              $.ajax({
+            url: '@Url.Action("ApplyFilters", "ProductList")',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(filters),
+            success: function (result) {
+                if (result.success) {
+                    var productHtml = '<div class="row">';
+                    result.products.forEach(function (product) {
+                        productHtml += `
+                            <div class="col-lg-4 col-md-6 col-sm-6 pb-1">
+                                <div class="product-item bg-light mb-4">
+                                    <div class="product-img position-relative overflow-hidden">
+                                        <img class="img-fluid w-100" src="${product.productImageUrl}" alt="">
+                                        <div class="product-action">
+                                            <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-shopping-cart"></i></a>
+                                            <a class="btn btn-outline-dark btn-square" href=""><i class="far fa-heart"></i></a>
+                                            <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-sync-alt"></i></a>
+                                            <a class="btn btn-outline-dark btn-square" href=""><i class="fa fa-search"></i></a>
+                                        </div>
+                                    </div>
+                                    <div class="text-center py-4">
+                                        <a class="h6 text-decoration-none text-truncate" href="">${product.productName}</a>
+                                        <div class="d-flex align-items-center justify-content-center mt-2">
+                                            <h5>${product.productPrice}</h5><h6 class="text-muted ml-2"><del>000 ₺</del></h6>
+                                        </div>
+                                        <div class="d-flex align-items-center justify-content-center mb-1">
+                                            <small class="fa fa-star text-primary mr-1"></small>
+                                            <small class="fa fa-star text-primary mr-1"></small>
+                                            <small class="fa fa-star text-primary mr-1"></small>
+                                            <small class="fa fa-star text-primary mr-1"></small>
+                                            <small class="fa fa-star text-primary mr-1"></small>
+                                            <small>(84)</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    productHtml += '</div>';
+                    $('#productListContainer').html(productHtml);
+                } else {
+                    $('#productListContainer').html('<div class="alert alert-warning">' + (result.message || 'Ürün bulunamadı.') + '</div>');
+                }
+            },
+            error: function (error) {
+                console.error("Hata oluştu:", error);
+                $('#productListContainer').html('<div class="alert alert-danger">Bir hata oluştu. Lütfen daha sonra tekrar deneyin.</div>');
+            }
+        });
+            }
+
+            // Debounce ile filtreleme fonksiyonunu optimize et
+            const debounceApplyFilters = debounce(() => {
+                applyFilters();
+            }, 500);
+
+            // Event listeners
+            $('input[type="checkbox"]').on('change', debounceApplyFilters);
+            $('.price-input').on('input', debounceApplyFilters);
+
+            // Arama ikonuna tıklama olayı
+            $('.search-icon').on('click', function () {
+                applyFilters();
             });
-        }
-    });
-</script>
+        });
+    </script>
+
+
+
 
 

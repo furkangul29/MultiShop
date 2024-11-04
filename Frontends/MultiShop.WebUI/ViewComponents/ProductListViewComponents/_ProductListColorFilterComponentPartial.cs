@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
+using MultiShop.Catalog.Entites;
 using MultiShop.WebUI.Models;
 using System.Collections.Generic;
 
@@ -6,8 +8,18 @@ namespace MultiShop.WebUI.ViewComponents.ProductListViewComponents
 {
     public class _ProductListColorFilterComponentPartial : ViewComponent
     {
-        public IViewComponentResult Invoke()
+        private readonly IMongoCollection<Product> _productCollection;
+
+        public _ProductListColorFilterComponentPartial(IMongoCollection<Product> productCollection)
         {
+            _productCollection = productCollection;
+        }
+
+        public async Task< IViewComponentResult> InvokeAsync()
+        {
+            // MongoDB'den benzersiz renkleri çekiyoruz
+            var distinctColors = await _productCollection.DistinctAsync<string>("Color", Builders<Product>.Filter.Empty);
+            var colorsFromDb = distinctColors.ToList();
             var colors = new List<FilterOption>
             {
                 new FilterOption { Id = "color-all", Label = "Tüm Renkler", Value = "all" },

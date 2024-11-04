@@ -25,18 +25,17 @@ namespace MultiShop.WebUI.Controllers
             ViewBag.CategoryId = id;
             return View();
         }
-  
+
         [HttpPost]
         public async Task<IActionResult> ApplyFilters([FromBody] FilterViewModel filters)
         {
             if (filters == null)
             {
-                return BadRequest("Filtreler boş olamaz.");
+                return BadRequest(new { message = "Filtreler boş olamaz." });
             }
 
             try
             {
-                // FilterViewModel'dan ProductFilterDto'ya dönüştür
                 var productFilterDto = new ProductFilterDto
                 {
                     CategoryId = filters.CategoryId,
@@ -49,35 +48,33 @@ namespace MultiShop.WebUI.Controllers
                     SelectedSizes = filters.SelectedSizes
                 };
 
-                // API'den filtrelenmiş ürünleri al
                 var filteredProducts = await _productService.GetFilteredProductsAsync(productFilterDto);
 
-                // Ürünler null veya boşsa, mesajı ViewBag'e ekle
                 if (filteredProducts == null || !filteredProducts.Any())
                 {
-                    ViewBag.Message = "Aradığınız kriterlere uygun ürün bulunamadı.";
-                    ViewBag.FilteredProducts = null;
-                }
-                else
-                {
-                    ViewBag.FilteredProducts = filteredProducts;
+                    return Ok(new
+                    {
+                        success = false,
+                        products = filteredProducts,
+                        message = "Aradığınız kriterlere uygun ürün bulunamadı."
+                    });
                 }
 
-                // Index görünümüne filteredProducts ile dön
-                Console.WriteLine("Filtered Products: " + JsonConvert.SerializeObject(filteredProducts));
-                return View("Index", filteredProducts);
+                return Ok(new
+                {
+                    success = true,
+                    products = filteredProducts
+                });
             }
-            catch (HttpRequestException)
+            catch (Exception ex)
             {
-                ViewBag.Message = "Sunucuya bağlanırken bir hata oluştu. Lütfen daha sonra tekrar deneyin.";
-                return View("Index");
-            }
-            catch (Exception)
-            {
-                ViewBag.Message = "Bir hata oluştu. Lütfen daha sonra tekrar deneyin.";
-                return View("Index");
+                return StatusCode(500, new { message = "Bir hata oluştu. Lütfen daha sonra tekrar deneyin." });
             }
         }
+
+
+
+
 
 
 

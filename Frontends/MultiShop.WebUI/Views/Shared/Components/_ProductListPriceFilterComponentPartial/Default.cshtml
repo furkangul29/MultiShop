@@ -1,15 +1,134 @@
-﻿@model List<MultiShop.WebUI.Models.FilterOption>
-
-<div class="filter-section">
-    <h4>Fiyat</h4>
-    <ul>
-        @foreach (var option in Model)
-
-        {
-            <li>
-                <input type="checkbox" id="@option.Id" value="@option.Value" data-filter-type="price" />
-                <label for="@option.Id">@option.Label</label>
-            </li>
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <style>
+        .filter-container {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.04);
         }
-    </ul>
-</div>
+
+        .filter-section {
+            margin-bottom: 2rem;
+        }
+
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+            .filter-header h4 {
+                font-size: 1.1rem;
+                font-weight: 600;
+                color: #2d3748;
+                margin: 0;
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+        .selected-price {
+            background: #EDF2F7;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #4A5568;
+            font-weight: 500;
+        }
+
+        .preset-filters {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        .price-chip {
+            position: relative;
+        }
+
+            .price-chip input[type="checkbox"] {
+                display: none;
+            }
+
+            .price-chip label {
+                display: inline-block;
+                padding: 0.5rem 1rem;
+                background: #F7FAFC;
+                border: 1px solid #E2E8F0;
+                border-radius: 25px;
+                color: #4A5568;
+                font-size: 0.9rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+            .price-chip input[type="checkbox"]:checked + label {
+                background: #4299E1;
+                color: white;
+                border-color: #4299E1;
+            }
+
+            .price-chip label:hover {
+                background: #EDF2F7;
+            }
+
+        .price-input-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .price-input {
+            padding: 0.5rem;
+            border: 1px solid #E2E8F0;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            width: 100px;
+        }
+
+        .search-icon {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="filter-container">
+        <div class="filter-section price-filter">
+            <div class="filter-header">
+                <h4>
+                    <i class="fas fa-tag"></i>
+                    Fiyat Aralığı
+                </h4>
+                <span class="selected-price">
+                    <span id="minPrice">0</span>₺ - <span id="maxPrice">5000</span>₺
+                </span>
+            </div>
+
+            <div class="price-input-container">
+                <input type="number" class="price-input" id="minPriceInput" placeholder="En az" min="0" max="5000" step="100">
+                <input type="number" class="price-input" id="maxPriceInput" placeholder="En çok" min="0" max="5000" step="100">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+
+            <div class="preset-filters">
+                @foreach (var option in Model)
+
+                {
+                    <div class="price-chip">
+                        <input type="checkbox" id="@option.Id"
+                               class="price-checkbox"
+                               value="@option.Value"
+                               data-filter-type="price">
+                        <label for="@option.Id">@option.Label</label>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</body>
+</html>

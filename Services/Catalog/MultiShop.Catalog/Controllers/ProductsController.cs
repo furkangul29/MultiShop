@@ -68,7 +68,7 @@ namespace MultiShop.Catalog.Controllers
         }
         [AllowAnonymous]
         [HttpPost("GetFilteredProducts")]
-        public async Task<IActionResult> GetFilteredProducts(ProductFilterDto filterDto)
+        public async Task<IActionResult> GetFilteredProducts(ProductFiltersDto filterDto)
         {
             var values = await _productService.GetFilteredProductsAsync(filterDto);
             return Ok(values);

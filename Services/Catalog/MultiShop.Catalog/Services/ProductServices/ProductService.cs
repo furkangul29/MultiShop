@@ -37,7 +37,7 @@ namespace MultiShop.Catalog.Services.ProductServices
             return _mapper.Map<GetByIdProductDto>(values);
         }
 
-        public async Task<List<ResultProductsWithCategoryDto>> GetFilteredProductsAsync(ProductFilterDto filterDto)
+        public async Task<List<ResultProductsWithCategoryDto>> GetFilteredProductsAsync(ProductFiltersDto filterDto)
         {
             // Başlangıç filtresi boş olarak tanımlanıyor.
             var filter = Builders<Product>.Filter.Empty;
