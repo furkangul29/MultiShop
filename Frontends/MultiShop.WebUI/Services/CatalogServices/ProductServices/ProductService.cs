@@ -66,6 +66,15 @@ namespace MultiShop.WebUI.Services.CatalogServices.ProductServices
 
             return new List<ResultProductDto>();
         }
-
+        public async Task<List<ResultProductDto>> SearchProductsAsync(string searchTerm)
+        {
+            var responseMessage = await _httpClient.GetAsync($"products/search?term={Uri.EscapeDataString(searchTerm)}");
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                var jsonData = await responseMessage.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<List<ResultProductDto>>(jsonData);
+            }
+            return new List<ResultProductDto>();
+        }
     }
 }

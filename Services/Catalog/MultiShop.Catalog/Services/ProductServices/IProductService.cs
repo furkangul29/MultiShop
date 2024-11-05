@@ -13,5 +13,6 @@ namespace MultiShop.Catalog.Services.ProductServices
         Task<List<ResultProductsWithCategoryDto>> GetProductsWithCategoryAsync();
         Task<List<ResultProductsWithCategoryDto>> GetProductsWithCategoryByCatetegoryIdAsync(string CategoryId);
         Task<List<ResultProductsWithCategoryDto>> GetFilteredProductsAsync(ProductFiltersDto filterDto);
+        Task<List<ResultProductDto>> SearchProductsAsync(string searchTerm);
     }
 }

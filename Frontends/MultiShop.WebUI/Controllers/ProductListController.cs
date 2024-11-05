@@ -126,7 +126,21 @@ namespace MultiShop.WebUI.Controllers
             // Hata durumunda aynı sayfayı döndürüyoruz
             return View();
         }
+        [HttpPost]
+        public async Task<IActionResult> Search([FromBody] SearchRequest request)
+        {
+            if (string.IsNullOrEmpty(request.SearchTerm) || request.SearchTerm.Length < 2)
+                return Json(new List<ResultProductDto>());
 
-
+            var results = await _productService.SearchProductsAsync(request.SearchTerm);
+            return Json(results);
+        }
     }
+
+    public class SearchRequest
+    {
+        public string SearchTerm { get; set; }
+    }
+
 }
+

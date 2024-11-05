@@ -143,5 +143,23 @@ namespace MultiShop.Catalog.Services.ProductServices
             var values = _mapper.Map<Product>(updateProductDto);
             await _productCollection.FindOneAndReplaceAsync(x => x.ProductId == updateProductDto.ProductId, values);
         }
+
+        public async Task<List<ResultProductDto>> SearchProductsAsync(string searchTerm)
+        {
+            if (string.IsNullOrEmpty(searchTerm) || searchTerm.Length < 2)
+                return new List<ResultProductDto>();
+
+            var filter = Builders<Product>.Filter.Or(
+                Builders<Product>.Filter.Regex(x => x.ProductName, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i")),
+                Builders<Product>.Filter.Regex(x => x.ProductDescription, new MongoDB.Bson.BsonRegularExpression(searchTerm, "i"))
+            );
+
+            var products = await _productCollection
+                .Find(filter)
+                .Limit(10) 
+                .ToListAsync();
+
+            return _mapper.Map<List<ResultProductDto>>(products);
+        }
     }
 }

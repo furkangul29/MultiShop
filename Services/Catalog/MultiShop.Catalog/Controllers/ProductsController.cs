@@ -73,5 +73,12 @@ namespace MultiShop.Catalog.Controllers
             var values = await _productService.GetFilteredProductsAsync(filterDto);
             return Ok(values);
         }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchProducts([FromQuery] string term)
+        {
+            var results = await _productService.SearchProductsAsync(term);
+            return Ok(results);
+        }
     }
 }
