@@ -19,52 +19,54 @@ namespace MultiShop.WebUI.ViewComponents.UILayoutViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            //var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-            //var exchangeData = await GetExchangeRatesAsync();
+            var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+            var exchangeData = await GetExchangeRatesAsync();
 
-            //string cityName = await GetCityFromIpAsync(ipAddress);
+            string cityName = await GetCityFromIpAsync(ipAddress);
 
-            //if (!string.IsNullOrWhiteSpace(cityName))
-            //{
-            //    var weatherData = await GetWeatherData(cityName);
+            var model = new TopbarViewModel();
 
-            //    // Hava durumu verilerini ViewBag'e atıyoruz
-            //    ViewBag.CityName = cityName;
-            //    ViewBag.Temperature = weatherData?.list[0]?.main?.temp.ToString("0.0"); // Celsius değeri, virgülden sonra bir hane
+            if (!string.IsNullOrWhiteSpace(cityName))
+            {
+                var weatherData = await GetWeatherData(cityName);
 
-            //    // Hava durumu durumuna göre simge seçimi
-            //    var weatherCondition = weatherData?.list[0]?.weather[0]?.main.ToLower();
-            //    switch (weatherCondition)
-            //    {
-            //        case "clear":
-            //            ViewBag.WeatherIcon = "fas fa-sun"; // Güneş
-            //            break;
-            //        case "clouds":
-            //            ViewBag.WeatherIcon = "fas fa-cloud"; // Bulut
-            //            break;
-            //        case "rain":
-            //            ViewBag.WeatherIcon = "fas fa-cloud-showers-heavy"; // Yağmur
-            //            break;
-            //        case "snow":
-            //            ViewBag.WeatherIcon = "fas fa-snowflake"; // Kar
-            //            break;
-            //        case "thunderstorm":
-            //            ViewBag.WeatherIcon = "fas fa-bolt"; // Fırtına
-            //            break;
-            //        default:
-            //            ViewBag.WeatherIcon = "fas fa-question-circle"; // Bilinmeyen hava durumu
-            //            break;
-            //    }
-            //}
-            //else
-            //{
-            //    ViewBag.ErrorMessage = "Konum bilgisi alınamadı.";
-            //}
+                // Hava durumu verilerini ViewBag'e atıyoruz
+                model.CityName = cityName;
+                model.Temperature = weatherData?.list[0]?.main?.temp.ToString("0.0"); // Celsius değeri, virgülden sonra bir hane
 
-            //return View(exchangeData);
-            return View();
+                // Hava durumu durumuna göre simge seçimi
+                var weatherCondition = weatherData?.list[0]?.weather[0]?.main.ToLower();
+                switch (weatherCondition)
+                {
+                    case "clear":
+                        model.WeatherIcon = "fas fa-sun"; // Güneş
+                        break;
+                    case "clouds":
+                        model.WeatherIcon = "fas fa-cloud"; // Bulut
+                        break;
+                    case "rain":
+                        model.WeatherIcon = "fas fa-cloud-showers-heavy"; // Yağmur
+                        break;
+                    case "snow":
+                        model.WeatherIcon = "fas fa-snowflake"; // Kar
+                        break;
+                    case "thunderstorm":
+                        model.WeatherIcon = "fas fa-bolt"; // Fırtına
+                        break;
+                    default:
+                        model.WeatherIcon = "fas fa-question-circle"; // Bilinmeyen hava durumu
+                        break;
+                }
+            }
+            else
+            {
+                model.ErrorMessage = "Konum bilgisi alınamadı.";
+            }
+
+            model.rates = exchangeData.rates;
+
+            return View(model);
         }
-
 
         private async Task<string> GetCityFromIpAsync(string ipAddress)
         {
@@ -96,10 +98,10 @@ namespace MultiShop.WebUI.ViewComponents.UILayoutViewComponents
                 Method = HttpMethod.Get,
                 RequestUri = new Uri($"https://weather-pro-api.p.rapidapi.com/forecast?city={cityName}&units=metric"),
                 Headers =
-    {
-        { "x-rapidapi-key",_rapidApiKey },
-        { "x-rapidapi-host", "weather-pro-api.p.rapidapi.com" },
-    },
+            {
+                { "x-rapidapi-key",_rapidApiKey },
+                { "x-rapidapi-host", "weather-pro-api.p.rapidapi.com" },
+            },
             };
             using (var response = await client.SendAsync(request))
             {
@@ -130,7 +132,5 @@ namespace MultiShop.WebUI.ViewComponents.UILayoutViewComponents
                 return JsonConvert.DeserializeObject<ExchangeViewModel.Rootobject>(body);
             }
         }
-
-
     }
 }

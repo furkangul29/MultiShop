@@ -35,5 +35,15 @@ namespace MultiShop.WebUI.Services.CatalogServices.CategoryServices
         {
             await _httpClient.PutAsJsonAsync<UpdateCategoryDto>("categories", updateCategoryDto);
         }
+        public async Task<List<ResultCategoryWithProductCountDto>> GetAllCategoryWithProductCountAsync()
+        {
+            var response = await _httpClient.GetAsync("categories/withproductcount");
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonData = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<List<ResultCategoryWithProductCountDto>>(jsonData);
+            }
+            return null;
+        }
     }
 }

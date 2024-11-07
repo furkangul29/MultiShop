@@ -105,36 +105,49 @@ namespace MultiShop.WebUI.Services.Concrete
                 Address = discoveryEndPoint.UserInfoEndpoint
             };
 
-            var userValues = await _httpClient.GetUserInfoAsync(userInfoRequest);
-
-            ClaimsIdentity claimsIdentity = new ClaimsIdentity(userValues.Claims, CookieAuthenticationDefaults.AuthenticationScheme, "name", "role");
-
-            ClaimsPrincipal claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
-
-            var authenticationProperties = new AuthenticationProperties();
-
-            authenticationProperties.StoreTokens(new List<AuthenticationToken>()
+            var userInfo = await _httpClient.GetUserInfoAsync(userInfoRequest);
+            if (userInfo.IsError)
             {
-                new AuthenticationToken
-                {
-                    Name=OpenIdConnectParameterNames.AccessToken,
-                    Value = token.AccessToken
-                },
-                new AuthenticationToken
-                {
-                    Name=OpenIdConnectParameterNames.RefreshToken,
-                    Value = token.RefreshToken
-                },
-                new AuthenticationToken
-                {
-                    Name=OpenIdConnectParameterNames.ExpiresIn,
-                    Value=DateTime.Now.AddSeconds(token.ExpiresIn).ToString()
-                }
-            });
+                return false;
+            }
 
-            authenticationProperties.IsPersistent = false;
+            // Özel claim'leri ekleyin
+            var claims = userInfo.Claims.ToList();
+            claims.Add(new Claim(ClaimTypes.NameIdentifier, userInfo.Claims.FirstOrDefault(c => c.Type == "sub")?.Value));
+            claims.Add(new Claim(ClaimTypes.Name, signInDto.Username));
 
-            await _httpContextAccessor.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal, authenticationProperties);
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme, ClaimTypes.Name, ClaimTypes.Role);
+            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
+
+            var authenticationProperties = new AuthenticationProperties
+            {
+                IsPersistent = true,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddDays(5)
+            };
+
+            authenticationProperties.StoreTokens(new List<AuthenticationToken>
+    {
+        new AuthenticationToken
+        {
+            Name = OpenIdConnectParameterNames.AccessToken,
+            Value = token.AccessToken
+        },
+        new AuthenticationToken
+        {
+            Name = OpenIdConnectParameterNames.RefreshToken,
+            Value = token.RefreshToken
+        },
+        new AuthenticationToken
+        {
+            Name = OpenIdConnectParameterNames.ExpiresIn,
+            Value = DateTime.Now.AddSeconds(token.ExpiresIn).ToString("O")
+        }
+    });
+
+            await _httpContextAccessor.HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                claimsPrincipal,
+                authenticationProperties);
 
             return true;
         }

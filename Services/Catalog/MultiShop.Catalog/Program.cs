@@ -6,6 +6,7 @@ using MultiShop.Catalog.Services.AboutServices;
 using MultiShop.Catalog.Services.BrandServices;
 using MultiShop.Catalog.Services.CategoryServices;
 using MultiShop.Catalog.Services.ContactServices;
+using MultiShop.Catalog.Services.FavoriteProductServices;
 using MultiShop.Catalog.Services.FeatureServices;
 using MultiShop.Catalog.Services.FeatureSliderServices;
 using MultiShop.Catalog.Services.OfferDiscountServices;
@@ -27,7 +28,39 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     opt.Audience = "ResourceCatalog";
     opt.RequireHttpsMetadata = false;
 });
+builder.Services.AddSingleton<IMongoClient, MongoClient>(sp =>
+{
+    var settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
+    return new MongoClient(settings.ConnectionString);
+});
 
+builder.Services.AddScoped(sp =>
+{
+    var client = sp.GetRequiredService<IMongoClient>();
+    var settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
+    var database = client.GetDatabase(settings.DatabaseName);
+    return database.GetCollection<Product>("Products");
+});
+
+builder.Services.AddSingleton<IMongoClient, MongoClient>(sp =>
+{
+    var settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
+    return new MongoClient(settings.ConnectionString);
+});
+
+builder.Services.AddScoped(sp =>
+{
+    var client = sp.GetRequiredService<IMongoClient>();
+    var settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
+    return client.GetDatabase(settings.DatabaseName);
+});
+
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("CatalogFullPermission", policy =>
+        policy.RequireClaim("scope", "CatalogFullPermission"));
+});
 builder.Services.AddScoped<IStatisticService, StatisticService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IProductService, ProductService>();
@@ -40,6 +73,7 @@ builder.Services.AddScoped<IOfferDiscountService, OfferDiscountService>();
 builder.Services.AddScoped<IBrandService, BrandService>();
 builder.Services.AddScoped<IAboutService, AboutService>();
 builder.Services.AddScoped<IContactService, ContactService>();
+builder.Services.AddScoped<IFavoriteProductService, FavoriteProductService>();
 
 
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());

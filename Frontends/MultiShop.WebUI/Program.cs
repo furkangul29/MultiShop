@@ -13,6 +13,7 @@ using MultiShop.WebUI.Services.CatalogServices.AboutServices;
 using MultiShop.WebUI.Services.CatalogServices.BrandServices;
 using MultiShop.WebUI.Services.CatalogServices.CategoryServices;
 using MultiShop.WebUI.Services.CatalogServices.ContactServices;
+using MultiShop.WebUI.Services.CatalogServices.FavoriteProductServices;
 using MultiShop.WebUI.Services.CatalogServices.FeatureServices;
 using MultiShop.WebUI.Services.CatalogServices.FeatureSliderServices;
 using MultiShop.WebUI.Services.CatalogServices.OfferDiscountServices;
@@ -46,7 +47,7 @@ builder.Services.AddScoped<IDatabaseSettings>(sp =>
 builder.Services.AddSingleton<IMongoClient>(s =>
     new MongoClient(builder.Configuration.GetSection("DatabaseSettings:ConnectionString").Value));
 
-// IMongoCollection<Product> türünü scoped olarak kaydediyoruz
+
 builder.Services.AddScoped<IMongoCollection<Product>>(sp =>
 {
     var settings = sp.GetRequiredService<IDatabaseSettings>();
@@ -54,27 +55,32 @@ builder.Services.AddScoped<IMongoCollection<Product>>(sp =>
     var database = client.GetDatabase(settings.DatabaseName);
     return database.GetCollection<Product>(settings.ProductCollectionName);
 });
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddCookie(JwtBearerDefaults.AuthenticationScheme, opt =>
+builder.Services.AddScoped<IMongoCollection<Category>>(sp =>
 {
-    opt.LoginPath = "/Login/Index/";
-    opt.LogoutPath = "/Login/LogOut/";
-    opt.AccessDeniedPath = "/Pages/AccessDenied/";
-    opt.Cookie.HttpOnly = true;
-    opt.Cookie.SameSite = SameSiteMode.Strict;
-    opt.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
-    opt.Cookie.Name = "MultiShopJwt";
+    var settings = sp.GetRequiredService<IDatabaseSettings>();
+    var client = sp.GetRequiredService<IMongoClient>();
+    var database = client.GetDatabase(settings.DatabaseName);
+    return database.GetCollection<Category>(settings.CategoryCollectionName);
 });
 
-builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).
-    AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, opt =>
-    {
-        opt.LoginPath = "/Login/Index/";
-        opt.ExpireTimeSpan = TimeSpan.FromDays(5);
-        opt.Cookie.Name = "MultiShopCookie";
-        opt.SlidingExpiration = true;
-    });
-
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+{
+    options.LoginPath = "/Login/Index/";
+    options.LogoutPath = "/Login/LogOut/";
+    options.AccessDeniedPath = "/Pages/AccessDenied/";
+    options.ExpireTimeSpan = TimeSpan.FromDays(5);
+    options.Cookie.Name = "MultiShopCookie";
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SameSite = SameSiteMode.Strict;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.SlidingExpiration = true;
+});
 builder.Services.AddAccessTokenManagement();
 
 builder.Services.AddHttpContextAccessor();
@@ -200,6 +206,10 @@ builder.Services.AddHttpClient<IAboutService, AboutService>(opt =>
 {
     opt.BaseAddress = new Uri($"{values.OcelotUrl}/{values.Catalog.Path}");
 }).AddHttpMessageHandler<ClientCredentialTokenHandler>();
+builder.Services.AddHttpClient<IFavoriteProductService, FavoriteProductService>(opt =>
+{
+    opt.BaseAddress = new Uri($"{values.OcelotUrl}/{values.Catalog.Path}");
+}).AddHttpMessageHandler<ClientCredentialTokenHandler>();
 
 builder.Services.AddHttpClient<IProductImageService, ProductImageService>(opt =>
 {
@@ -239,6 +249,11 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.DefaultRequestCulture = new Microsoft.AspNetCore.Localization.RequestCulture(supportedCultures[0]);
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
+});
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("CatalogFullPermission", policy =>
+        policy.RequireClaim("scope", "CatalogFullPermission"));
 });
 
 var app = builder.Build();
