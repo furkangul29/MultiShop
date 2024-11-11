@@ -35,18 +35,43 @@ namespace MultiShop.WebUI.Controllers
         //[HttpPost]
         public async Task<IActionResult> AddBasketItem(string id)
         {
-            var values = await _productService.GetByIdProductAsync(id);
-            var items = new BasketItemDto
+            try
             {
-                ProductId = values.ProductId,
-                ProductName = values.ProductName,
-                Price = values.ProductPrice,
-                Quantity = 1,
-                ProductImageUrl = values.ProductImageUrl
-            };
-            await _basketService.AddBasketItem(items);
-            return RedirectToAction("Index");
+                var values = await _productService.GetByIdProductAsync(id);
+
+                if (values == null)
+                {
+                    return Json(new { success = false, message = "Ürünü sepete eklemek için giriş yapmanız gerekmektedir." });
+                }
+
+                var items = new BasketItemDto
+                {
+                    ProductId = values.ProductId,
+                    ProductName = values.ProductName,
+                    Price = values.ProductPrice,
+                    Quantity = 1,
+                    ProductImageUrl = values.ProductImageUrl
+                };
+
+                await _basketService.AddBasketItem(items);
+                return Json(new { success = true, message = "Ürün sepete eklendi." });
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Json(new { success = false, message = "Ürünü sepete eklemek için giriş yapmanız gerekmektedir." });
+            }
+            catch (ArgumentException ex) when (ex.ParamName == "refresh_token")
+            {
+                return Json(new { success = false, message = "Ürünü sepete eklemek için giriş yapmanız gerekmektedir." });
+            }
+            catch (Exception)
+            {
+                return Json(new { success = false, message = "Bir hata oluştu. Lütfen tekrar deneyin." });
+            }
         }
+
+
+
 
         public async Task<IActionResult> RemoveBasketItem(string id)
         {

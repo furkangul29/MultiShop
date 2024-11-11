@@ -3,6 +3,13 @@
     Layout = "~/Views/UILayout/_UILayout.cshtml";
 }
 
+<!-- Toastify CSS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+
+<!-- Toastify JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
+
 @await Component.InvokeAsync("_DirectoryAlertUILayoutComponentPartial")
 
 @await Component.InvokeAsync("_CarouselDefaultComponentPartial")
@@ -16,3 +23,54 @@
 @await Component.InvokeAsync("_OfferDiscountDefaultComponentPartial")
 
 @await Component.InvokeAsync("_VendorDefaultComponentPartial")
+
+<script type="text/javascript">
+    function addToBasket(productId) {
+        fetch(`/ShoppingCart/AddBasketItem/${productId}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Başarı mesajı
+                    Toastify({
+                        text: data.message,
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "green",
+                    }).showToast();
+                } else {
+                    // Hata mesajı ve yönlendirme
+                    Toastify({
+                        text: data.message,
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "red",
+                    }).showToast();
+
+                    // Giriş sayfasına yönlendirme
+                    setTimeout(() => {
+                        window.location.href = '/Login/Index';
+                    }, 3000); // 3 saniye sonra yönlendirme
+                }
+            })
+            .catch(error => {
+                console.error("Bir hata oluştu:", error);
+                Toastify({
+                    text: "Bir hata oluştu. Lütfen tekrar deneyin.",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "red",
+                }).showToast();
+            });
+    }
+</script>

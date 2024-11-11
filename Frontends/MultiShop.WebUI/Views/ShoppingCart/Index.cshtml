@@ -3,6 +3,9 @@
     Layout = "~/Views/UILayout/_UILayout.cshtml";
 }
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <div class="container-fluid">
     <div class="row px-xl-5">
@@ -16,3 +19,165 @@
     </div>
 </div>
 <!-- Cart End -->
+<script>
+    const CartHelper = {
+        formatCurrency: (amount) => {
+            return isNaN(amount) || amount === null ? "0.00 ₺" : `${Number(amount).toFixed(2)} ₺`;
+        },
+        parseAmount: (amountStr) => {
+            if (!amountStr || typeof amountStr !== 'string') return 0;
+            return parseFloat(amountStr.replace(/[^\d.,]/g, '').replace(',', '.')) || 0;
+        }
+    };
+
+    function showNotification(message, type = 'success') {
+        Toastify({
+            text: message,
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            style: {
+                background: type === 'success' ? "#20c997" : "#ff6b6b",
+                borderRadius: '4px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }
+        }).showToast();
+    }
+
+    function handleQuantityChange(inputId, change) {
+        const quantityInput = document.getElementById(inputId);
+        if (!quantityInput) {
+            console.error(`Input element bulunamadı (ID: ${inputId})`);
+            return;
+        }
+
+        let newQuantity = parseInt(quantityInput.value) + change;
+        if (newQuantity < 1) {
+            showNotification("Minimum miktar 1 olmalıdır!", 'error');
+            newQuantity = 1;
+        }
+
+        quantityInput.value = newQuantity;
+        const row = quantityInput.closest('tr');
+        updateRowAndTotals(row, newQuantity);
+    }
+
+    function updateRowAndTotals(row, newQuantity) {
+        const unitPrice = CartHelper.parseAmount(row.querySelector(".unit-price").innerText);
+        const totalPriceElement = row.querySelector(".total-price");
+        const newTotal = newQuantity * unitPrice;
+        totalPriceElement.innerText = CartHelper.formatCurrency(newTotal);
+
+        updateTotalPrices();
+    }
+
+    function updateTotalPrices() {
+        let subtotal = 0;
+        document.querySelectorAll('.total-price').forEach(element => {
+            subtotal += CartHelper.parseAmount(element.innerText);
+        });
+
+        const taxRate = 10;
+        const taxAmount = (subtotal * taxRate) / 100;
+        const totalWithTax = subtotal + taxAmount;
+
+        const discountRateElement = document.getElementById('discountRate');
+        const discountRate = discountRateElement ? parseFloat(discountRateElement.innerText) : 0;
+        const discountAmount = (totalWithTax * discountRate) / 100;
+        const finalTotal = totalWithTax - discountAmount;
+
+        document.getElementById('totalPrice').innerText = CartHelper.formatCurrency(subtotal);
+        document.getElementById('taxAmount').innerText = CartHelper.formatCurrency(taxAmount);
+        document.getElementById('totalPriceWithTax').innerText = CartHelper.formatCurrency(totalWithTax);
+        document.getElementById('totalNewPriceWithDiscount').innerText = CartHelper.formatCurrency(finalTotal);
+    }
+
+    function confirmRemove(productId) {
+        if (!productId) return;
+
+        Swal.fire({
+            title: 'Emin misiniz?',
+            text: "Bu ürünü sepetinizden kaldırmak istediğinize emin misiniz?",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Evet, kaldır',
+            cancelButtonText: 'İptal',
+            borderRadius: '8px'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = `/ShoppingCart/RemoveBasketItem/${productId}`;
+            }
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.quantity').forEach(input => {
+            input.value = Math.max(1, parseInt(input.getAttribute('data-initial-quantity')) || 1);
+            const row = input.closest('tr');
+            updateRowAndTotals(row, parseInt(input.value));
+        });
+
+        document.querySelectorAll('.btn-minus, .btn-plus').forEach(button => {
+            if (!button.hasAttribute('data-listener-added')) {
+                button.setAttribute('data-listener-added', 'true');
+                button.addEventListener('click', handleButtonClick);
+            }
+        });
+
+        const applyCouponButton = document.getElementById('applyCouponButton');
+        if (applyCouponButton) {
+            applyCouponButton.addEventListener('click', () => {
+                const code = document.getElementById('discountCode')?.value;
+                if (!code) {
+                    showNotification("Lütfen kupon kodu giriniz!", 'error');
+                    return;
+                }
+
+                fetch('/Discount/ConfirmDiscountCoupon', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `code=${encodeURIComponent(code)}`
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            showNotification("Kupon başarıyla uygulandı!");
+                            document.getElementById('discountRate').innerText = data.discountRate;
+                            updateTotalPrices();
+                        } else {
+                            showNotification(data.message || "Kupon uygulanamadı!", 'error');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Kupon uygulama hatası:', error);
+                        showNotification("Kupon uygulanırken bir hata oluştu!", 'error');
+                    });
+            });
+        }
+
+        updateTotalPrices();
+    });
+
+    function handleButtonClick(event) {
+        event.preventDefault();
+        const button = event.currentTarget;
+        const inputId = button.dataset.inputId;
+        const change = parseInt(button.dataset.change, 10);
+        handleQuantityChange(inputId, change);
+    }
+
+    function proceedToPayment() {
+        window.location.href = '/Payment/Index';
+    }
+</script>
+
+
+
+
+
+
+
+
+

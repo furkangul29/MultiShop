@@ -23,14 +23,39 @@ namespace MultiShop.WebUI.Controllers
         [HttpPost]
         public async Task<IActionResult> ConfirmDiscountCoupon(string code)
         {
-            var values = await _discountService.GetDiscountCouponCountRate(code);
+            try
+            {
+                // Fetch discount rate based on the coupon code
+                var values = await _discountService.GetDiscountCouponCountRate(code);
 
-            var basketValues = await _basketService.GetBasket();
-            var totalPriceWithTax = basketValues.TotalPrice + basketValues.TotalPrice / 100 * 10;
+                if (values == null || values <= 0)
+                {
+                    return Json(new { success = false, message = "Geçersiz kupon kodu!" });
+                }
 
-            var totalNewPriceWithDiscount = totalPriceWithTax - (totalPriceWithTax / 100 * values);
+                var basketValues = await _basketService.GetBasket();
+                if (basketValues == null || basketValues.TotalPrice <= 0)
+                {
+                    return Json(new { success = false, message = "Sepet bilgileri alınamadı!" });
+                }
 
-            return RedirectToAction("Index", "ShoppingCart", new { code = code, discountRate = values, totalNewPriceWithDiscount = totalNewPriceWithDiscount });
+                decimal taxRate = 0.10m; // decimal literal for precision
+                decimal totalPriceWithTax = basketValues.TotalPrice + (basketValues.TotalPrice * taxRate);
+                decimal discountRate = values / 100m; // Ensure values are decimal
+                decimal totalNewPriceWithDiscount = totalPriceWithTax - (totalPriceWithTax * discountRate);
+
+                return Json(new
+                {
+                    success = true,
+                    discountRate = values,
+                    totalNewPriceWithDiscount = totalNewPriceWithDiscount
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error applying discount coupon:", ex);
+                return Json(new { success = false, message = "Kupon uygulanırken bir hata oluştu!" });
+            }
         }
     }
 }
