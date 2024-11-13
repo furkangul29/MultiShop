@@ -36,14 +36,23 @@ namespace MultiShop.WebUI.Services.CatalogServices.FeatureSliderServices
             await _httpClient.PutAsJsonAsync<UpdateFeatureSliderDto>("featuresliders", updateFeatureSliderDto);
         }
 
-        public Task FeatureSliderChageStatusToTrue(string id)
+        public async Task FeatureSliderChangeStatusToTrue(string id)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(id))
+                throw new ArgumentNullException(nameof(id));
+
+            // URL'yi API ile uyumlu hale getiriyoruz
+            await _httpClient.PutAsync($"featuresliders/ChangeStatusToTrue?id={id}", null);
         }
 
-        public Task FeatureSliderChageStatusToFalse(string id)
+        public async Task FeatureSliderChangeStatusToFalse(string id)
         {
-            throw new NotImplementedException();
+            if (string.IsNullOrEmpty(id))
+                throw new ArgumentNullException(nameof(id));
+
+            // URL'yi API ile uyumlu hale getiriyoruz
+            await _httpClient.PutAsync($"featuresliders/ChangeStatusToFalse?id={id}", null);
         }
+
     }
 }

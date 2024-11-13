@@ -9,7 +9,7 @@ namespace MultiShop.WebUI.Services.CatalogServices.FeatureSliderServices
         Task UpdateFeatureSliderAsync(UpdateFeatureSliderDto updateFeatureSliderDto);
         Task DeleteFeatureSliderAsync(string id);
         Task<UpdateFeatureSliderDto> GetByIdFeatureSliderAsync(string id);
-        Task FeatureSliderChageStatusToTrue(string id);
-        Task FeatureSliderChageStatusToFalse(string id);
+        Task FeatureSliderChangeStatusToTrue(string id);
+        Task FeatureSliderChangeStatusToFalse(string id);
     }
 }

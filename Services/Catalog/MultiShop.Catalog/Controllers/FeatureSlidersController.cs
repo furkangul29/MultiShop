@@ -51,5 +51,17 @@ namespace MultiShop.Catalog.Controllers
             await _FeatureSliderService.UpdateFeatureSliderAsync(updateFeatureSliderDto);
             return Ok("Öne çıkan görsel başarıyla güncellendi");
         }
+        [HttpPut("ChangeStatusToTrue")]
+        public async Task<IActionResult> ChangeStatusToTrue(string id)
+        {
+            await _FeatureSliderService.FeatureSliderChangeStatusToTrue(id);
+            return Ok("Öne çıkan görsel başarıyla aktif edildi");
+        }
+        [HttpPut("ChangeStatusToFalse")]
+        public async Task<IActionResult> ChangeStatusToFalse(string id)
+        {
+            await _FeatureSliderService.FeatureSliderChangeStatusToFalse(id);
+            return Ok("Öne çıkan görsel başarıyla pasif edildi");
+        }
     }
 }

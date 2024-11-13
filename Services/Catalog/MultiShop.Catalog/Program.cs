@@ -6,6 +6,7 @@ using MultiShop.Catalog.Services.AboutServices;
 using MultiShop.Catalog.Services.BrandServices;
 using MultiShop.Catalog.Services.CategoryServices;
 using MultiShop.Catalog.Services.ContactServices;
+using MultiShop.Catalog.Services.DealsOfDayServices;
 using MultiShop.Catalog.Services.FavoriteProductServices;
 using MultiShop.Catalog.Services.FeatureServices;
 using MultiShop.Catalog.Services.FeatureSliderServices;
@@ -72,6 +73,8 @@ builder.Services.AddScoped<IFeatureService, FeatureService>();
 builder.Services.AddScoped<IOfferDiscountService, OfferDiscountService>();
 builder.Services.AddScoped<IBrandService, BrandService>();
 builder.Services.AddScoped<IAboutService, AboutService>();
+builder.Services.AddScoped<IDealsOfDayService, DealsOfDayService>();
+
 builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddScoped<IFavoriteProductService, FavoriteProductService>();
 

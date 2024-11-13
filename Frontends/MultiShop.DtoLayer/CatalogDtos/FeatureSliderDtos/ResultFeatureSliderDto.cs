@@ -13,5 +13,6 @@ namespace MultiShop.DtoLayer.CatalogDtos.FeatureSliderDtos
         public string Description { get; set; }
         public string ImageUrl { get; set; }
         public bool Status { get; set; }
+        public string CategoryId { get; set; }
     }
 }
