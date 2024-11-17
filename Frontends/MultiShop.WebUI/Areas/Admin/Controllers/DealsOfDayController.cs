@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MultiShop.DtoLayer.CatalogDtos.DealsOfDayDtos;
+using MultiShop.WebUI.Services.CatalogServices.CategoryServices;
 using MultiShop.WebUI.Services.CatalogServices.DealsOfDayServices;
+using MultiShop.WebUI.Services.CatalogServices.ProductServices;
 
 namespace MultiShop.WebUI.Areas.Admin.Controllers
 {
@@ -10,10 +12,14 @@ namespace MultiShop.WebUI.Areas.Admin.Controllers
     public class DealsOfDayController : Controller
     {
         private readonly IDealsOfDayService _dealsOfDayService;
+        private readonly IProductService _productService;
+        private readonly ICategoryService _categoryService;
 
-        public DealsOfDayController(IDealsOfDayService dealsOfDayService)
+        public DealsOfDayController(IDealsOfDayService dealsOfDayService, ICategoryService categoryService, IProductService productService)
         {
             _dealsOfDayService = dealsOfDayService;
+            _categoryService = categoryService;
+            _productService = productService;
         }
 
         [Route("Index")]
@@ -26,9 +32,10 @@ namespace MultiShop.WebUI.Areas.Admin.Controllers
 
         [HttpGet]
         [Route("CreateDealsOfDay")]
-        public IActionResult CreateDealsOfDay()
+        public async Task<IActionResult> CreateDealsOfDay()
         {
             DealsOfDayViewbagList();
+            ViewBag.Categories = await _categoryService.GetAllCategoryAsync();
             return View();
         }
 
@@ -36,8 +43,17 @@ namespace MultiShop.WebUI.Areas.Admin.Controllers
         [Route("CreateDealsOfDay")]
         public async Task<IActionResult> CreateDealsOfDay(CreateDealsOfDayDto createDealDto)
         {
+            createDealDto.IsActive = true;
             await _dealsOfDayService.CreateDealAsync(createDealDto);
             return RedirectToAction("Index", "DealsOfDay", new { area = "Admin" });
+        }
+
+        [HttpGet]
+        [Route("GetProductsByCategory/{categoryId}")]
+        public async Task<IActionResult> GetProductsByCategory(string categoryId)
+        {
+            var products = await _productService.GetProductsWithCategoryByCatetegoryIdAsync(categoryId);
+            return Json(products);
         }
 
         [Route("DeleteDealsOfDay/{id}")]
