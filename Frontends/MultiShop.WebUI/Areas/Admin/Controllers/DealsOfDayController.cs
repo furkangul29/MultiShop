@@ -41,20 +41,38 @@ namespace MultiShop.WebUI.Areas.Admin.Controllers
 
         [HttpPost]
         [Route("CreateDealsOfDay")]
-        public async Task<IActionResult> CreateDealsOfDay(CreateDealsOfDayDto createDealDto)
+        public async Task<IActionResult> CreateDealsOfDay([FromBody] CreateDealsOfDayDto createDealDto)
         {
-            createDealDto.IsActive = true;
-            await _dealsOfDayService.CreateDealAsync(createDealDto);
-            return RedirectToAction("Index", "DealsOfDay", new { area = "Admin" });
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new { message = "Geçersiz veri girişi" });
+                }
+
+                await _dealsOfDayService.CreateDealAsync(createDealDto);
+                return Ok(new { message = "Fırsat başarıyla oluşturuldu" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Fırsat oluşturulurken bir hata oluştu" });
+            }
         }
 
         [HttpGet]
-        [Route("GetProductsByCategory/{categoryId}")]
-        public async Task<IActionResult> GetProductsByCategory(string categoryId)
+    [Route("GetProductsByCategory/{categoryId}")]
+    public async Task<IActionResult> GetProductsByCategory(string categoryId)
+    {
+        try
         {
             var products = await _productService.GetProductsWithCategoryByCatetegoryIdAsync(categoryId);
-            return Json(products);
+            return Ok(products);
         }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Ürünler yüklenirken bir hata oluştu" });
+        }
+    }
 
         [Route("DeleteDealsOfDay/{id}")]
         public async Task<IActionResult> DeleteDealsOfDay(string id)

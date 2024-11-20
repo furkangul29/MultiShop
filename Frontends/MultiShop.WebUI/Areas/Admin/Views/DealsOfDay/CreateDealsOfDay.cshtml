@@ -8,9 +8,11 @@
 <head>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/lib/toastr.js/toastr.min.js"></script>
-    <link href="~/lib/toastr.js/toastr.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet" />
+
     <style>
+        /* Önceki CSS stilleri aynen kalacak */
         .category-container {
             display: flex;
             flex-wrap: wrap;
@@ -28,10 +30,10 @@
             background-color: white;
         }
 
-            .category-card:hover {
-                transform: translateY(-5px);
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            }
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
 
         .category-image {
             width: 100%;
@@ -55,18 +57,18 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
-            .product-table th {
-                background-color: #f8f9fa;
-                padding: 1rem;
-                text-align: left;
-                font-weight: 600;
-            }
+        .product-table th {
+            background-color: #f8f9fa;
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+        }
 
-            .product-table td {
-                padding: 1rem;
-                border-top: 1px solid #dee2e6;
-                vertical-align: middle;
-            }
+        .product-table td {
+            padding: 1rem;
+            border-top: 1px solid #dee2e6;
+            vertical-align: middle;
+        }
 
         .product-image {
             width: 80px;
@@ -103,10 +105,10 @@
         <div class="category-container">
             @foreach (var category in ViewBag.Categories)
             {
-                <div class="category-card" onclick="loadProducts('@category.CategoryID')">
-                    <img src="@category.ImageUrl" alt="@category.CategoryName" class="category-image">
-                    <div class="category-name">@category.CategoryName</div>
-                </div>
+                    <div class="category-card" onclick="loadProducts('@category.CategoryID')">
+                        <img src="@category.ImageUrl" alt="@category.CategoryName" class="category-image">
+                        <div class="category-name">@category.CategoryName</div>
+                    </div>
             }
         </div>
 
@@ -131,6 +133,14 @@
     </div>
 
     <script>
+        // Toastr ayarları
+        toastr.options = {
+            "closeButton": true,
+            "progressBar": true,
+            "positionClass": "toast-top-right",
+            "timeOut": "3000"
+        };
+
         function loadProducts(categoryId) {
             $.get(`/Admin/DealsOfDay/GetProductsByCategory/${categoryId}`, function (products) {
                 const container = $('#productsContainer');
@@ -138,38 +148,41 @@
 
                 products.forEach(product => {
                     container.append(`
-                                <tr>
-                                    <td>
-                                        <img src="${product.productImageUrl || '/images/no-image.jpg'}" class="product-image" alt="${product.productName}">
-                                    </td>
-                                    <td>${product.productName}</td>
-                                            <td>${product.productPrice} TL</td>
-                                    <td>
-                                        <select class="form-control discount-select"
-                                                onchange="handleDiscountChange(this, '${product.productId}', ${product.productPrice})">
-                                            <option value="">Seçiniz</option>
-                                            <option value="10">%10</option>
-                                            <option value="20">%20</option>
-                                            <option value="30">%30</option>
-                                            <option value="40">%40</option>
-                                            <option value="50">%50</option>
-                                        </select>
-                                    </td>
-                                    <td>
-                                        <span class="new-price"></span>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-primary create-deal-btn"
-                                                onclick="createDeal('${product.productId}')"
-                                                style="display:none;">
-                                            Fırsat Oluştur
-                                        </button>
-                                    </td>
-                                </tr>
-                            `);
+                        <tr>
+                            <td>
+                                <img src="${product.productImageUrl || '/images/no-image.jpg'}" class="product-image" alt="${product.productName}">
+                            </td>
+                            <td>${product.productName}</td>
+                            <td>${product.productPrice} TL</td>
+                            <td>
+                                <select class="form-control discount-select"
+                                        onchange="handleDiscountChange(this, '${product.productId}', ${product.productPrice})">
+                                    <option value="">Seçiniz</option>
+                                    <option value="10">%10</option>
+                                    <option value="20">%20</option>
+                                    <option value="30">%30</option>
+                                    <option value="40">%40</option>
+                                    <option value="50">%50</option>
+                                </select>
+                            </td>
+                            <td>
+                                <span class="new-price"></span>
+                            </td>
+                            <td>
+                                <button class="btn btn-primary create-deal-btn"
+                                        onclick="createDeal('${product.productId}', ${product.productPrice})"
+                                        style="display:none;">
+                                    Fırsat Oluştur
+                                </button>
+                            </td>
+                        </tr>
+                    `);
                 });
 
                 $('#productList').fadeIn();
+            }).fail(function(error) {
+                toastr.error('Ürünler yüklenirken bir hata oluştu!');
+                console.error('Error loading products:', error);
             });
         }
 
@@ -184,21 +197,27 @@
                 newPriceSpan.html(`${newPrice.toFixed(2)} TL`);
                 createButton.show();
                 createButton.data('discount', discount);
+                createButton.data('newPrice', newPrice);
             } else {
                 newPriceSpan.empty();
                 createButton.hide();
             }
         }
 
-        function createDeal(productId) {
-            const row = $(`button[onclick="createDeal('${productId}')"]`).closest('tr');
+        function createDeal(productId, originalPrice) {
+            const row = $(`button[onclick="createDeal('${productId}', ${originalPrice})"]`).closest('tr');
             const discountSelect = row.find('.discount-select');
             const discount = parseInt(discountSelect.val());
+            const newPrice = row.find('.create-deal-btn').data('newPrice');
 
             const createDealDto = {
                 productId: productId,
                 discountPercentage: discount,
-                isActive: true
+                originalPrice: originalPrice,
+                discountedPrice: newPrice,
+                isActive: true,
+                startDate: new Date().toISOString(),
+                endDate: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 saat sonrası
             };
 
             $.ajax({
@@ -206,12 +225,17 @@
                 type: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(createDealDto),
-                success: function () {
+                success: function (response) {
                     toastr.success('Günün fırsatı başarıyla oluşturuldu!');
                     row.fadeOut();
                 },
-                error: function () {
-                    toastr.error('Bir hata oluştu!');
+                error: function (xhr, status, error) {
+                    let errorMessage = 'Bir hata oluştu!';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    toastr.error(errorMessage);
+                    console.error('Error creating deal:', error);
                 }
             });
         }

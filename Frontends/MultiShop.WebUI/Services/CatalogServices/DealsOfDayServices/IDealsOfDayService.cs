@@ -7,7 +7,7 @@ namespace MultiShop.WebUI.Services.CatalogServices.DealsOfDayServices
     {
         Task CreateDealAsync(CreateDealsOfDayDto createDealDto);
         Task DeleteDealAsync(string id);
-        Task<UpdateDealsOfDayDto> GetByIdDealAsync(string id);
+        Task<ResultDealsOfDayDto> GetByIdDealAsync(string id);
         Task<List<ResultDealsOfDayDto>> GetAllDealsOfDayAsync();
         Task UpdateDealAsync(UpdateDealsOfDayDto updateDealDto);
 

@@ -55,8 +55,21 @@ builder.Services.AddScoped(sp =>
     var settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
     return client.GetDatabase(settings.DatabaseName);
 });
+builder.Services.AddSingleton<IMongoClient>(sp =>
+{
+    var settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
+    return new MongoClient(settings.ConnectionString);
+});
 
+builder.Services.AddScoped(sp =>
+{
+    var client = sp.GetRequiredService<IMongoClient>();
+    var settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
+    var database = client.GetDatabase(settings.DatabaseName);
+    return database.GetCollection<DealsOfDay>("DealsOfDayCollectionName");
+});
 
+builder.Services.AddHostedService<DealsExpirationService>();
 builder.Services.AddAuthorization(options =>
 {
     options.AddPolicy("CatalogFullPermission", policy =>

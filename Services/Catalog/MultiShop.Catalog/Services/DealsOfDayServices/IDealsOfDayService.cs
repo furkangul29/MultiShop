@@ -9,5 +9,6 @@ namespace MultiShop.Catalog.Services.DealsOfDayServices
         Task UpdateDealsOfDayAsync(UpdateDealsOfDayDto updateDealDto);
         Task DeleteDealsOfDayAsync(string id);
         Task<ResultDealsOfDayDto> GetDealsOfDayByIdAsync(string id);
+        Task DeactivateExpiredDealsAsync();
     }
 }
