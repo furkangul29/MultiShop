@@ -1,0 +1,221 @@
+﻿@model List<ResultDealsOfDayDto>
+@{
+    ViewData["Title"] = "DealsOfDay";
+    Layout = "~/Areas/Admin/Views/AdminLayout/Index.cshtml";
+}
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>DealsOfDay</title>
+    <link href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <style>
+        .card {
+            border-radius: 0.5rem;
+        }
+
+        .table th {
+            background-color: #f8f9fc;
+            vertical-align: middle;
+        }
+
+        .btn-group {
+            gap: 0.25rem;
+        }
+
+        .badge {
+            font-size: 0.875rem;
+            padding: 0.5em 0.75em;
+        }
+
+        .img-thumbnail {
+            border-radius: 0.25rem;
+            object-fit: cover;
+            height: 50px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h3 class="m-0 font-weight-bold text-primary">Günün Fırsatları Listesi</h3>
+                <a href="/Admin/DealsOfDay/CreateDealsOfDay" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Yeni Fırsat Ekle
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="dealsTable" width="100%">
+                        <thead>
+                            <tr>
+                                <th>Ürün Resmi</th>
+                                <th>Ürün Adı</th>
+                                <th>Kategori</th>
+                                <th>İndirim %</th>
+                                <th>İndirimsiz Fiyat</th>
+                                <th>İndirimli Fiyat</th>
+                                <th>Başlangıç</th>
+                                <th>Bitiş</th>
+                                <th>Durum</th>
+                                <th>İşlemler</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>
+                                        <img src="@item.ProductImageUrl" class="img-thumbnail" alt="@item.ProductName" />
+                                    </td>
+                                    <td>@item.ProductName</td>
+                                    <td>@item.CategoryName</td>
+                                    <td>%@item.DiscountPercentage</td>
+                                    <td>@item.OriginalPrice.ToString("C2")</td>
+                                    <td>@item.DiscountedPrice.ToString("C2")</td>
+                                    <td>@item.StartDate.ToString("dd/MM/yyyy")</td>
+                                    <td>@item.EndDate.ToString("dd/MM/yyyy")</td>
+                                    <td>
+                                        <span class="badge badge-pill @(item.IsActive ? "badge-success" : "badge-danger")">
+                                            @(item.IsActive ? "Aktif" : "Pasif")
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <button type="button"
+                                                    class="btn btn-sm btn-@(item.IsActive ? "warning" : "success")"
+                                                    onclick="updateStatus('@item.DealsOfDayId', '@((!item.IsActive).ToString().ToLower())')"
+                                                    title="@(item.IsActive ? "Pasife Al" : "Aktife Al")">
+                                                <i class="fas fa-@(item.IsActive ? "power-off" : "check-circle")"></i>
+                                            </button>
+
+
+                                            <a href="/Admin/DealsOfDay/UpdateDealsOfDay/@item.DealsOfDayId"
+                                               class="btn btn-sm btn-primary"
+                                               title="Düzenle">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-danger"
+                                                    onclick="deleteDeal('@item.DealsOfDayId')"
+                                                    title="Sil">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function () {
+            $('#dealsTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Turkish.json"
+                },
+                "order": [[6, "desc"]],
+                "responsive": true
+            });
+        });
+
+        function updateStatus(id, newStatus) {
+            // Debug için konsola yazdır
+            console.log('Updating status:', { id, newStatus });
+
+            // String'i boolean'a çevir
+            newStatus = newStatus === 'true';
+            console.log('Converted newStatus:', newStatus);
+
+            Swal.fire({
+                title: newStatus ? 'Aktife Al' : 'Pasife Al',
+                text: newStatus
+                    ? 'Bu fırsatı aktife almak istediğinizden ve ürün fiyatının indirimli fiyat olarak güncelleneceğinden emin misiniz?'
+                    : 'Bu fırsatı pasife almak istediğinizden ve ürün fiyatının normal fiyata döneceğinden emin misiniz?',
+                icon: 'warning',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Evet',
+                cancelButtonText: 'İptal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Admin/DealsOfDay/ChangeStatus',
+                        type: 'POST',
+                        data: { id: id, status: newStatus },
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: 'Başarılı!',
+                                    text: 'Durum güncellendi.',
+                                    icon: 'success'
+                                }).then(() => {
+                                    location.reload();
+                                });
+                            } else {
+                                Swal.fire('Hata!', response.message || 'Bir hata oluştu.', 'error');
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Ajax error:', error);
+                            Swal.fire('Hata!', 'Sunucu ile bağlantı sağlanamadı.', 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+
+        function deleteDeal(id) {
+            Swal.fire({
+                title: 'Emin misiniz?',
+                text: "Bu fırsat kalıcı olarak silinecektir!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Evet, Sil!',
+                cancelButtonText: 'İptal'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.ajax({
+                        url: '/Admin/DealsOfDay/DeleteDealsOfDay/' + id, // URL'yi dinamik hale getirdik
+                        type: 'DELETE',
+                        success: function (response) {
+                            if (response.success) {
+                                Swal.fire({
+                                    title: 'Silindi!',
+                                    text: 'Fırsat başarıyla silindi.',
+                                    icon: 'success'
+                                }).then(() => {
+                                    location.reload(); // Sayfa yenileniyor
+                                });
+                            } else {
+                                Swal.fire('Hata!', 'Silme işlemi başarısız.', 'error');
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            Swal.fire('Hata!', 'Bir hata oluştu: ' + error, 'error');
+                        }
+                    });
+                }
+            });
+        }
+
+
+    </script>
+</body>
+
+</html>

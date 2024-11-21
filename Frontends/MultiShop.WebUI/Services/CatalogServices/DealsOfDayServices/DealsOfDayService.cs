@@ -1,5 +1,6 @@
 ﻿using MultiShop.DtoLayer.CatalogDtos.DealsOfDayDtos;
 using Newtonsoft.Json;
+using System.Net.Http.Headers;
 
 namespace MultiShop.WebUI.Services.CatalogServices.DealsOfDayServices
 {
@@ -57,19 +58,32 @@ namespace MultiShop.WebUI.Services.CatalogServices.DealsOfDayServices
             }
         }
 
-        public async Task DeleteDealAsync(string id)
+        public async Task<bool> DeleteDealsOfDayAsync(string id)
         {
             try
             {
-                var response = await _httpClient.DeleteAsync($"{BaseEndpoint}?id={id}");
-                response.EnsureSuccessStatusCode();
+                var response = await _httpClient.DeleteAsync($"{BaseEndpoint}/{id}");
+
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return true;
+                }
+                else
+                {
+                    var errorMessage = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Failed to delete deal. Error: {errorMessage}, Status Code: {response.StatusCode}"); // Include status code for better debugging
+                }
             }
             catch (HttpRequestException ex)
             {
-                throw new Exception("Failed to delete deal", ex);
+                throw new Exception("Failed to delete deal due to an HTTP error.", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error occurred while trying to delete the deal.", ex);
             }
         }
-
         public async Task<ResultDealsOfDayDto> GetByIdDealAsync(string id)
         {
             try
@@ -82,6 +96,37 @@ namespace MultiShop.WebUI.Services.CatalogServices.DealsOfDayServices
             catch (HttpRequestException ex)
             {
                 throw new Exception("Failed to fetch deal by id", ex);
+            }
+        }
+
+        public async Task<ResultDealsOfDayDto> UpdateGetByIdDealAsync(string id)
+        {
+            try
+            {
+                // API'ye GET isteği gönder
+                var response = await _httpClient.GetAsync($"{BaseEndpoint}/{id}/UpdateGetByIdDealAsync");
+                response.EnsureSuccessStatusCode(); // Hata durumunda bir istisna atar
+
+                // Yanıtı DTO'ya dönüştür
+                var result = await response.Content.ReadFromJsonAsync<ResultDealsOfDayDto>();
+                return result ?? throw new Exception("Deal not found");
+            }
+            catch (HttpRequestException ex)
+            {
+                // Hata durumunda loglama yapılabilir
+                throw new Exception("Failed to fetch deal by id", ex);
+            }
+        }
+        public async Task ChangeDealStatusAsync(string dealId, bool isActive)
+        {
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync($"{BaseEndpoint}/{dealId}/ChangeStatus", isActive);
+                response.EnsureSuccessStatusCode();
+            }
+            catch (HttpRequestException ex)
+            {
+                throw new Exception("Failed to change deal status", ex);
             }
         }
 

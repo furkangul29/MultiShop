@@ -39,6 +39,12 @@ namespace MultiShop.Catalog.Controllers
             await _dealsService.CreateDealsOfDayAsync(createDealDto);
             return Ok("Deal created successfully");
         }
+        [HttpGet("{id}/UpdateGetByIdDealAsync")]
+        public async Task<IActionResult> UpdateGetByIdDealAsync(string id)
+        {
+            var deal = await _dealsService.UpdateGetByIdDealAsync(id);
+            return Ok(deal);
+        }
 
         [HttpPut]
         public async Task<IActionResult> UpdateDealsOfDay(UpdateDealsOfDayDto updateDealDto)
@@ -53,5 +59,13 @@ namespace MultiShop.Catalog.Controllers
             await _dealsService.DeleteDealsOfDayAsync(id);
             return Ok("Deal deleted successfully");
         }
+
+        [HttpPost("{id}/ChangeStatus")]
+        public async Task<IActionResult> ChangeDealStatus(string id, [FromBody] bool isActive)
+        {
+            await _dealsService.ChangeDealStatusAsync(id, isActive);
+            return Ok($"Deal status updated to {(isActive ? "Active" : "Inactive")}");
+        }
+
     }
 }

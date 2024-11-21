@@ -48,6 +48,19 @@ builder.Services.AddSingleton<IMongoClient, MongoClient>(sp =>
     var settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
     return new MongoClient(settings.ConnectionString);
 });
+builder.Services.AddSingleton<IMongoClient, MongoClient>(sp =>
+{
+    var settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
+    return new MongoClient(settings.ConnectionString);
+});
+
+builder.Services.AddScoped(sp =>
+{
+    var client = sp.GetRequiredService<IMongoClient>();
+    var database = client.GetDatabase("YourDatabaseName");
+    return database.GetCollection<Category>("Categories");
+});
+
 
 builder.Services.AddScoped(sp =>
 {
