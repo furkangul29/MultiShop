@@ -113,89 +113,106 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>
-  $(document).ready(function () {
-    // Set the initial discounted price and select the correct discount percentage in the dropdown
-    const initialDiscountPercentage = @Model.DiscountPercentage; 
-    $('#DiscountPercentage').val(initialDiscountPercentage);
-    calculateDiscountedPrice();
+        $(document).ready(function () {
+            toastr.options = {
+                "closeButton": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "timeOut": "3000"
+            };
 
-    $('#DiscountPercentage').on('change', calculateDiscountedPrice);
+            const dealsOfDayId = $('#DealsOfDayId').val();
+            console.log('Initial DealsOfDayId:', dealsOfDayId);
 
-    $('#updateDealsOfDayForm').on('submit', function (event) {
-        event.preventDefault();
+            const initialDiscountPercentage = '@Model.DiscountPercentage' || 0;
+            $('#DiscountPercentage').val(initialDiscountPercentage);
+            calculateDiscountedPrice();
 
-        const dealsOfDayId = $('#DealsOfDayId').val();
-        const discountPercentage = $('#DiscountPercentage').val();
-        const discountedPrice = parseFloat($('#DiscountedPrice').val());
-        const originalPrice = parseFloat($('#OriginalPrice').val());
+            $('#DiscountPercentage').on('change', calculateDiscountedPrice);
 
-        // Validation
-        if (!discountPercentage) {
-            toastr.error('Lütfen bir indirim oranı seçin.');
-            return;
-        }
+            $('#updateDealsOfDayForm').on('submit', function (event) {
+                event.preventDefault();
 
-        const updateData = {
-            DealsOfDayId: dealsOfDayId,
-            DiscountPercentage: parseInt(discountPercentage),
-            DiscountedPrice: discountedPrice,
-            ProductId: @Model.ProductId,
-            OriginalPrice: originalPrice
-        };
-
-        $.ajax({
-            url: '@Url.Action("UpdateDealsOfDay", "DealsOfDay")',
-            type: 'PUT',
-            data: JSON.stringify(updateData),
-            contentType: 'application/json',
-            success: function (response) {
-                if (response.success) {
-                    toastr.success(response.message);
-                    setTimeout(function () {
-                        window.location.href = '@Url.Action("Index", "DealsOfDay")';
-                    }, 1500);
-                } else {
-                    toastr.error(response.message);
+                const dealsOfDayId = $('#DealsOfDayId').val();
+                if (!dealsOfDayId) {
+                    toastr.error('Deal ID is missing');
+                    console.error('DealsOfDayId is null or empty');
+                    return;
                 }
-            },
-            error: function (xhr) {
-                console.error(xhr); // Log the error for debugging
-                toastr.error(xhr.responseJSON?.message || "Güncelleme işlemi başarısız oldu. Error: " + xhr.status); // More detailed error
-            }
+
+                const discountPercentage = parseInt($('#DiscountPercentage').val()) || 0;
+                const originalPrice = parseFloat($('#OriginalPrice').val()) || 0;
+                const discountedPrice = parseFloat($('#DiscountedPrice').val()) || 0;
+
+                // Validation
+                if (!discountPercentage) {
+                    toastr.error('Lütfen bir indirim oranı seçin');
+                    return;
+                }
+
+                if (isNaN(originalPrice) || originalPrice <= 0) {
+                    toastr.error('Geçerli bir fiyat girmelisiniz');
+                    return;
+                }
+
+                const updateData = {
+                    DealsOfDayId: dealsOfDayId,
+                    DiscountPercentage: discountPercentage,
+                    DiscountedPrice: discountedPrice,
+                    ProductId: '@Model.ProductId',
+                    OriginalPrice: originalPrice
+                };
+
+                // Veriyi JSON stringine çeviriyoruz
+                const jsonData = JSON.stringify(updateData);
+
+                console.log('Raw updateData:', updateData);
+                console.log('Stringified JSON data:', jsonData);
+
+                $.ajax({
+                    url: '/Admin/DealsOfDay/UpdateDealsOfDay/' + dealsOfDayId,
+                    type: 'PUT',
+                    data: jsonData,  // Direkt JSON string gönderiyoruz
+                    contentType: 'application/json',
+                    dataType: 'json', // Response'un da JSON olmasını bekliyoruz
+                    success: function (response) {
+                        console.log('Success response:', response);
+                        toastr.success('Günün fırsatı başarıyla güncellendi');
+                        setTimeout(function () {
+                            window.location.href = '/Admin/DealsOfDay/Index';
+                        }, 1500);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error details:', { xhr, status, error });
+                        const errorMessage = xhr.responseJSON?.message || 'Güncelleme işlemi başarısız oldu';
+                        console.error('Error response:', xhr.responseText);
+                        toastr.error(errorMessage);
+                    }
+                });
+            });
         });
-    });
 
+        function calculateDiscountedPrice() {
+            const originalPrice = parseFloat($('#OriginalPrice').val()) || 0;
+            const discountPercentage = parseFloat($('#DiscountPercentage').val()) || 0;
 
-    toastr.options = {
-        "closeButton": true,
-        "debug": false,
-        "newestOnTop": false,
-        "progressBar": true,
-        "positionClass": "toast-top-right",
-        "preventDuplicates": false,
-        "onclick": null,
-        "showDuration": "300",
-        "hideDuration": "1000",
-        "timeOut": "5000",
-        "extendedTimeOut": "1000",
-        "showEasing": "swing",
-        "hideEasing": "linear",
-        "showMethod": "fadeIn",
-        "hideMethod": "fadeOut"
-    };
-});
+            console.log('Calculation values:', {
+                originalPrice,
+                discountPercentage,
+                originalPriceRaw: $('#OriginalPrice').val(),
+                discountPercentageRaw: $('#DiscountPercentage').val()
+            });
 
-function calculateDiscountedPrice() {
-    const originalPrice = parseFloat($('#OriginalPrice').val());
-    const discountPercentage = parseFloat($('#DiscountPercentage').val());
-
-    if (!isNaN(originalPrice) && !isNaN(discountPercentage)) {
-        const discountedPrice = originalPrice - (originalPrice * discountPercentage / 100);
-        $('#DiscountedPrice').val(discountedPrice.toFixed(2));
-    } else {
-        $('#DiscountedPrice').val('');
-    }
-}
+            if (originalPrice > 0 && discountPercentage > 0) {
+                const discountedPrice = originalPrice * (1 - (discountPercentage / 100));
+                const roundedPrice = Math.round(discountedPrice * 100) / 100;
+                $('#DiscountedPrice').val(roundedPrice.toFixed(2));
+                console.log('Calculated discounted price:', roundedPrice);
+            } else {
+                $('#DiscountedPrice').val('');
+                console.log('Could not calculate price - invalid input values');
+            }
+        }
     </script>
 </body>
 </html>

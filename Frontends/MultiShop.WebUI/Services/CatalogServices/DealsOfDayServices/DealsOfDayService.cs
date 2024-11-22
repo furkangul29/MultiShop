@@ -49,12 +49,17 @@ namespace MultiShop.WebUI.Services.CatalogServices.DealsOfDayServices
         {
             try
             {
-                var response = await _httpClient.PutAsJsonAsync(BaseEndpoint, updateDealDto);
+                var url = $"{BaseEndpoint}/UpdateDealsOfDay/{updateDealDto.DealsOfDayId}";
+
+
+                var response = await _httpClient.PutAsJsonAsync(url, updateDealDto);
+                var content = await response.Content.ReadAsStringAsync();
+
                 response.EnsureSuccessStatusCode();
             }
             catch (HttpRequestException ex)
             {
-                throw new Exception("Failed to update deal", ex);
+                throw new Exception($"Failed to update deal: {ex.Message}", ex);
             }
         }
 

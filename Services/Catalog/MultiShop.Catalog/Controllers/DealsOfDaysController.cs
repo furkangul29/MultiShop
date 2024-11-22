@@ -46,11 +46,23 @@ namespace MultiShop.Catalog.Controllers
             return Ok(deal);
         }
 
-        [HttpPut]
-        public async Task<IActionResult> UpdateDealsOfDay(UpdateDealsOfDayDto updateDealDto)
+        [HttpPut("UpdateDealsOfDay/{id}")]
+        public async Task<IActionResult> UpdateDealsOfDay(string id, [FromBody] UpdateDealsOfDayDto updateDealDto)
         {
-            await _dealsService.UpdateDealsOfDayAsync(updateDealDto);
-            return Ok("Deal updated successfully");
+            if (id != updateDealDto.DealsOfDayId)
+            {
+                return BadRequest("ID mismatch");
+            }
+
+            try
+            {
+                await _dealsService.UpdateDealsOfDayAsync(updateDealDto);
+                return Ok(new { success = true, message = "Deal updated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
         }
 
         [HttpDelete("{id}")]

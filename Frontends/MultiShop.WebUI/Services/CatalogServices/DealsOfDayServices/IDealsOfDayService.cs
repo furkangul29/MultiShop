@@ -9,7 +9,7 @@ namespace MultiShop.WebUI.Services.CatalogServices.DealsOfDayServices
         Task<bool> DeleteDealsOfDayAsync(string id);
         Task<ResultDealsOfDayDto> GetByIdDealAsync(string id);
         Task<List<ResultDealsOfDayDto>> GetAllDealsOfDayAsync();
-        Task UpdateDealAsync(UpdateDealsOfDayDto updateDealDto);
+        Task UpdateDealAsync(UpdateDealsOfDayDto updateDealsOfDayDto);
         Task ChangeDealStatusAsync(string dealId, bool isActive);
         Task<ResultDealsOfDayDto> UpdateGetByIdDealAsync(string id);
     }
