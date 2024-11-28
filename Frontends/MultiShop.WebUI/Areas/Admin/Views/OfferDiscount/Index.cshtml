@@ -1,13 +1,10 @@
 ﻿@model List<ResultOfferDiscountDto>
-
 @{
     ViewData["Title"] = "Index";
     Layout = "~/Areas/Admin/Views/AdminLayout/Index.cshtml";
 }
-
 <section class="content container-fluid">
     <div class="row">
-
         <div class="col-md-12">
             <div class="chart-box">
                 <div class="bs-example" data-example-id="bordered-table">
@@ -16,6 +13,7 @@
                             <tr>
                                 <th>İndirim Teklif Başlığı</th>
                                 <th>İndirim Teklif Alt Başlığı</th>
+                                <th>Kategori</th>
                                 <th>Sil</th>
                                 <th>Güncelle</th>
                             </tr>
@@ -26,6 +24,15 @@
                                 <tr>
                                     <td>@item.Title</td>
                                     <td>@item.SubTitle</td>
+                                    <td>
+                                        @{
+                                            var categoryName = string.IsNullOrWhiteSpace(item.CategoryID) ||
+                                            !ViewBag.CategoryDictionary.ContainsKey(item.CategoryID)
+                                            ? "Kategori Atanmamış"
+                                            : ViewBag.CategoryDictionary[item.CategoryID];
+                                        }
+                                        @categoryName
+                                    </td>
                                     <td>
                                         <button onclick="deleteOfferDiscountConfirm('@item.OfferDiscountId')" class="btn btn-outline-danger">Sil</button>
                                     </td>

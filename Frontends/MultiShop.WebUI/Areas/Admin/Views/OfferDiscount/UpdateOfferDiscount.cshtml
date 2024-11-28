@@ -1,36 +1,86 @@
 ﻿@model UpdateOfferDiscountDto
 @{
-    ViewData["Title"] = "UpdateOfferDiscount";
+    ViewData["Title"] = "İndirim Teklifi Güncelleme";
     Layout = "~/Areas/Admin/Views/AdminLayout/Index.cshtml";
 }
-
-<section class="content container-fluid">
+<div class="container">
     <div class="row">
-
         <div class="col-md-12">
-            <div class="chart-box">
-                <h4>İndirim Teklifi Güncelleme Sayfası</h4>
-                <br />
-                <div class="bs-example" data-example-id="bordered-table">
-
-                    <form method="post">
-                        <input type="hidden" asp-for="OfferDiscountId" />
-                        <label>İndirim Teklifi Başlığı</label>
-                        <input type="text" class="form-control" asp-for="Title" />
-                        <br />
-                        <label>İndirim Teklifi Alt Başlığı</label>
-                        <input type="text" class="form-control" asp-for="SubTitle" />
-                        <br />
-                        <label>İndirin Teklifi Görsel</label>
-                        <input type="text" class="form-control" asp-for="ImageUrl" />
-                        <br />
-                        <label>İndirim Teklifi Buton Başlığı</label>
-                        <input type="text" class="form-control" asp-for="ButtonTitle" />
-                        <br />
-                        <button class="btn btn-success">İndirim Teklifini Güncelle</button>
-                    </form>
+            <h2 class="mb-4">İndirim Teklifi Güncelleme Sayfası</h2>
+            <form asp-action="UpdateOfferDiscount" method="post" enctype="multipart/form-data">
+                <input type="hidden" asp-for="OfferDiscountId" />
+                <div class="form-group">
+                    <label asp-for="CategoryID">Kategori Seçimi</label>
+                    <select asp-for="CategoryID" class="form-control">
+                        <option value="">Kategori Seçiniz</option>
+                        @if (ViewBag.Categories != null)
+                        {
+                            @foreach (var category in ViewBag.Categories)
+                            {
+                                <option value="@category.Value">@category.Text</option>
+                            }
+                        }
+                    </select>
                 </div>
-            </div>
+                <div class="form-group">
+                    <label asp-for="Title">İndirim Teklifi Başlığı</label>
+                    <input asp-for="Title" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="SubTitle">İndirim Teklifi Alt Başlığı</label>
+                    <input asp-for="SubTitle" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label>İndirim Teklifi Görseli</label>
+                    <div class="custom-control custom-radio">
+                        <input type="radio" id="imageUrlRadio" name="ImageUploadType" class="custom-control-input" checked>
+                        <label class="custom-control-label" for="imageUrlRadio">Resim URL'si Gir</label>
+                    </div>
+                    <div class="custom-control custom-radio">
+                        <input type="radio" id="imageFileRadio" name="ImageUploadType" class="custom-control-input">
+                        <label class="custom-control-label" for="imageFileRadio">Dosya Seç</label>
+                    </div>
+
+                    <div id="imageUrlSection" class="mt-2">
+                        <input asp-for="ImageUrl" type="text" class="form-control" placeholder="Resim URL'sini girin veya dosya yolunu seçin" />
+                    </div>
+
+                    <div id="imageFileSection" class="mt-2" style="display:none;">
+                        <input type="file" name="ImageFile" class="form-control-file" />
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <img src="@Model.ImageUrl" alt="Mevcut Görsel" class="img-thumbnail mt-2" style="max-width: 200px;" />
+                    }
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ButtonTitle">İndirim Teklifi Buton Başlığı</label>
+                    <input asp-for="ButtonTitle" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">İndirim Teklifini Güncelle</button>
+                </div>
+            </form>
         </div>
     </div>
-</section>
+</div>
+
+    <script>
+        $(document).ready(function() {
+            // Toggle between URL and File input
+            $('#imageUrlRadio').change(function() {
+                $('#imageUrlSection').show();
+                $('#imageFileSection').hide();
+                $('#imageUrlSection input').val(''); // Clear file input
+            });
+
+            $('#imageFileRadio').change(function() {
+                $('#imageUrlSection').hide();
+                $('#imageFileSection').show();
+                $('#imageUrlSection input').val(''); // Clear URL input
+            });
+        });
+    </script>
