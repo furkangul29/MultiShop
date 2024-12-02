@@ -1,86 +1,265 @@
-﻿@model UpdateOfferDiscountDto
+﻿@using System.Text.Json
+@model UpdateOfferDiscountDto
+
 @{
     ViewData["Title"] = "İndirim Teklifi Güncelleme";
     Layout = "~/Areas/Admin/Views/AdminLayout/Index.cshtml";
 }
-<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <h2 class="mb-4">İndirim Teklifi Güncelleme Sayfası</h2>
-            <form asp-action="UpdateOfferDiscount" method="post" enctype="multipart/form-data">
-                <input type="hidden" asp-for="OfferDiscountId" />
-                <div class="form-group">
-                    <label asp-for="CategoryID">Kategori Seçimi</label>
-                    <select asp-for="CategoryID" class="form-control">
-                        <option value="">Kategori Seçiniz</option>
-                        @if (ViewBag.Categories != null)
-                        {
-                            @foreach (var category in ViewBag.Categories)
+
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-2xl mx-auto">
+        <div class="bg-white shadow-2xl rounded-xl overflow-hidden">
+            <div class="bg-gradient-to-r from-blue-500 to-purple-600 p-6">
+                <h2 class="text-2xl font-bold text-white flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    İndirim Teklifi Güncelleme
+                </h2>
+            </div>
+            <form id="updateOfferDiscountForm" class="p-6 space-y-6" enctype="multipart/form-data">
+                <input type="hidden" name="OfferDiscountId" id="OfferDiscountId" value="@Model.OfferDiscountId" />
+                
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Kategori Seçimi</label>
+                        <select id="CategoryID" name="CategoryID" class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <option value="">Kategori Seçiniz</option>
+                            @if (ViewBag.Categories != null)
                             {
-                                <option value="@category.Value">@category.Text</option>
+                                @foreach (var category in ViewBag.Categories)
+                                {
+                                    <option value="@category.Value" selected="@(category.Value == Model.CategoryID ? "selected" : null)">@category.Text</option>
+                                }
                             }
-                        }
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label asp-for="Title">İndirim Teklifi Başlığı</label>
-                    <input asp-for="Title" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label asp-for="SubTitle">İndirim Teklifi Alt Başlığı</label>
-                    <input asp-for="SubTitle" class="form-control" />
-                </div>
-                <div class="form-group">
-                    <label>İndirim Teklifi Görseli</label>
-                    <div class="custom-control custom-radio">
-                        <input type="radio" id="imageUrlRadio" name="ImageUploadType" class="custom-control-input" checked>
-                        <label class="custom-control-label" for="imageUrlRadio">Resim URL'si Gir</label>
+                        </select>
                     </div>
-                    <div class="custom-control custom-radio">
-                        <input type="radio" id="imageFileRadio" name="ImageUploadType" class="custom-control-input">
-                        <label class="custom-control-label" for="imageFileRadio">Dosya Seç</label>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">İndirim Teklifi Başlığı</label>
+                        <input type="text" id="Title" name="Title" value="@Model.Title" class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Başlık girin" />
                     </div>
+                </div>
 
-                    <div id="imageUrlSection" class="mt-2">
-                        <input asp-for="ImageUrl" type="text" class="form-control" placeholder="Resim URL'sini girin veya dosya yolunu seçin" />
-                    </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">İndirim Teklifi Alt Başlığı</label>
+                    <input type="text" id="SubTitle" name="SubTitle" value="@Model.SubTitle" class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Alt başlık girin" />
+                </div>
 
-                    <div id="imageFileSection" class="mt-2" style="display:none;">
-                        <input type="file" name="ImageFile" class="form-control-file" />
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Görsel Seçimi</label>
+                    <div class="flex space-x-2 mb-4">
+                        <label class="flex items-center space-x-2 cursor-pointer">
+                            <input type="radio" name="ImageUploadType" id="imageUrlRadio" checked class="form-radio" />
+                            <span>Resim URL'si</span>
+                        </label>
+                        <label class="flex items-center space-x-2 cursor-pointer ml-4">
+                            <input type="radio" name="ImageUploadType" id="imageFileRadio" class="form-radio" />
+                            <span>Dosya Yükle</span>
+                        </label>
                     </div>
 
-                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
-                    {
-                        <img src="@Model.ImageUrl" alt="Mevcut Görsel" class="img-thumbnail mt-2" style="max-width: 200px;" />
-                    }
+                    <div id="imageUrlSection">
+                        <input type="text" id="ImageUrl" name="ImageUrl" value="@Model.ImageUrl" class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Resim URL'sini girin" />
+                    </div>
+                    <div id="imageFileSection" class="hidden">
+                        <div class="flex">
+                            <input type="file" id="imageFileInput" name="ImageFile" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                        </div>
+                        <div id="imagePreview" class="mt-4">
+                            @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                            {
+                                <div class="border rounded-lg overflow-hidden shadow-md">
+                                    <img src="@Model.ImageUrl" class="w-full h-48 object-cover" />
+                                    <div class="p-2 bg-gray-100 text-center text-sm">
+                                        Mevcut Görsel
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label asp-for="ButtonTitle">İndirim Teklifi Buton Başlığı</label>
-                    <input asp-for="ButtonTitle" class="form-control" />
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">İndirim Teklifi Buton Başlığı</label>
+                    <input type="text" id="ButtonTitle" name="ButtonTitle" value="@Model.ButtonTitle" class="w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="Buton başlığı girin" />
                 </div>
 
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">İndirim Teklifini Güncelle</button>
+                <div class="text-center">
+                    <button type="submit" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 px-8 rounded-lg hover:from-blue-600 hover:to-purple-700 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                        İndirim Teklifini Güncelle
+                    </button>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
-    <script>
-        $(document).ready(function() {
-            // Toggle between URL and File input
-            $('#imageUrlRadio').change(function() {
-                $('#imageUrlSection').show();
-                $('#imageFileSection').hide();
-                $('#imageUrlSection input').val(''); // Clear file input
+<!-- Toast Bildirim Konteyneri -->
+<!-- Toast Bildirim Konteyneri -->
+<div id="toastContainer" class="fixed top-4 right-4 z-50 space-y-2"></div>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('updateOfferDiscountForm');
+        const imageUrlRadio = document.getElementById('imageUrlRadio');
+        const imageFileRadio = document.getElementById('imageFileRadio');
+        const imageUrlSection = document.getElementById('imageUrlSection');
+        const imageFileSection = document.getElementById('imageFileSection');
+        const imageFileInput = document.getElementById('imageFileInput');
+        const imagePreview = document.getElementById('imagePreview');
+        const toastContainer = document.getElementById('toastContainer');
+        const categorySelect = document.getElementById('CategoryID');
+        const titleInput = document.getElementById('Title');
+
+        const offerDiscountId = @Html.Raw(JsonSerializer.Serialize(Model.OfferDiscountId));
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg transition-all duration-500 z-50 ${type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'} transform translate-x-full opacity-0 animate-slide-in`;
+            toast.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <span class="mr-4">${message}</span>
+                    <button class="close-toast">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+            `;
+
+            const existingToasts = document.querySelectorAll('#toastContainer > div');
+            existingToasts.forEach(existingToast => existingToast.remove());
+
+            toastContainer.appendChild(toast);
+
+            // Toast'ın ekranın üstünde göründüğünden emin olmak için z-index değerini artırıyoruz
+            requestAnimationFrame(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
             });
 
-            $('#imageFileRadio').change(function() {
-                $('#imageUrlSection').hide();
-                $('#imageFileSection').show();
-                $('#imageUrlSection input').val(''); // Clear URL input
+            const autoCloseTimer = setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+
+            const closeButton = toast.querySelector('.close-toast');
+            closeButton.addEventListener('click', () => {
+                clearTimeout(autoCloseTimer);
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 500);
+            });
+        }
+
+        imageUrlRadio.addEventListener('change', () => {
+            imageUrlSection.classList.remove('hidden');
+            imageFileSection.classList.add('hidden');
+            imageFileInput.value = '';
+        });
+
+        imageFileRadio.addEventListener('change', () => {
+            imageUrlSection.classList.add('hidden');
+            imageFileSection.classList.remove('hidden');
+            document.getElementById('ImageUrl').value = '';
+        });
+
+        imageFileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            const fileSize = file.size / 1024 / 1024;
+            const fileType = file.type.split('/')[0];
+
+            if (fileSize > 5) {
+                showToast('Dosya boyutu 5 MB\'dan büyük olamaz.', 'error');
+                imageFileInput.value = '';
+                imagePreview.innerHTML = '';
+                return;
+            }
+
+            if (fileType !== 'image') {
+                showToast('Lütfen sadece resim dosyası seçin.', 'error');
+                imageFileInput.value = '';
+                imagePreview.innerHTML = '';
+                return;
+            }
+
+            reader.onload = function (e) {
+                imagePreview.innerHTML = `
+                            <div class="border rounded-lg overflow-hidden shadow-md">
+                                <img src="${e.target.result}" class="w-full h-48 object-cover" />
+                                <div class="p-2 bg-gray-100 text-center text-sm">
+                                    ${file.name} (${(fileSize * 1024).toFixed(2)} KB)
+                                </div>
+                            </div>
+                        `;
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(form);
+
+            // ID kontrolü
+            if (!formData.get('OfferDiscountId')) {
+                showToast('Teklif İndirimi ID eksik!', 'error');
+                return;
+            }
+
+            // Validasyon kontrolleri
+            if (categorySelect.value === '') {
+                showToast('Lütfen bir kategori seçin.', 'error');
+                return;
+            }
+
+            if (titleInput.value.trim() === '') {
+                showToast('Lütfen bir başlık girin.', 'error');
+                return;
+            }
+
+            const imageUploadType = document.querySelector('input[name="ImageUploadType"]:checked').id;
+
+            if (imageUploadType === 'imageUrlRadio' && formData.get('ImageUrl').trim() === '') {
+                showToast('Lütfen bir resim URL\'si girin.', 'error');
+                return;
+            }
+
+            $.ajax({
+                url: `/Admin/OfferDiscount/UpdateOfferDiscount/${offerDiscountId}`,
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                xhrFields: {
+                    withCredentials: true // Çapraz domain isteklerinde kimlik bilgilerini paylaş
+                },
+                beforeSend: function (xhr) {
+                    // Hata ayıklama modunu devre dışı bırak
+                    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                },
+                success: function (response) {
+                    console.warn('Response alındı:', response); // Geçici kontrol
+                    if (!response.success) {
+                        (response.errors || []).forEach(error => {
+                            showToast(error || 'Bilinmeyen bir hata oluştu', 'error');
+                        });
+                    } else {
+                        showToast('Başarılı bir şekilde güncellendi!', 'success');
+                        setTimeout(() => {
+                            window.location.href = '/Admin/OfferDiscount/Index';
+                        }, 2000);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.warn('AJAX Hatası:', status, error); // Geçici kontrol
+                    showToast(`Sunucu hatası: ${error || 'Bilinmeyen hata'}`, 'error');
+                }
             });
         });
-    </script>
+    });
+</script>
+
+

@@ -25,6 +25,7 @@ using MultiShop.WebUI.Services.CatalogServices.SpecialOfferServices;
 using MultiShop.WebUI.Services.CommentServices;
 using MultiShop.WebUI.Services.Concrete;
 using MultiShop.WebUI.Services.DiscountServices;
+using MultiShop.WebUI.Services.ImageServices;
 using MultiShop.WebUI.Services.Interfaces;
 using MultiShop.WebUI.Services.MessageServices;
 using MultiShop.WebUI.Services.OrderServices.OrderAddressServices;
@@ -218,6 +219,13 @@ builder.Services.AddHttpClient<IFavoriteProductService, FavoriteProductService>(
 {
     opt.BaseAddress = new Uri($"{values.OcelotUrl}/{values.Catalog.Path}");
 }).AddHttpMessageHandler<ClientCredentialTokenHandler>();
+
+builder.Services.AddHttpClient<IImageService, ImageService>(opt =>
+{
+    opt.BaseAddress = new Uri($"{values.OcelotUrl}/{values.Image.Path}");
+}).AddHttpMessageHandler<ClientCredentialTokenHandler>();
+
+
 
 builder.Services.AddHttpClient<IProductImageService, ProductImageService>(opt =>
 {
