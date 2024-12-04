@@ -1,0 +1,41 @@
+[33m6012f8f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m)[m Key dosyası git problemi duzeltildi.
+[33mc90781c[m[33m ([m[1;31morigin/master[m[33m)[m Google Cloud Storage Api hazırlandı Create Offer ve Update Offer Admin tarafı icin dosya yukleme ekranı olusturuldu. Anasayfa da yolları tanımlandı.
+[33mda4d2d7[m OfferDıscount CategoryID  ekleme işlemleri yapıldı. MVC tarafında methodlar  kontrol edilecek
+[33m1af948a[m .
+[33mecab7d2[m DeleteDeals calısır hale getirildi updateDealsOfDay safa tasarımı ve backend kodları yazıldı.(Scriptte problem var bakılacak)
+[33m00d6c37[m CreateDealOfDays sayfa tasarımı ve backend kodları tamamlandı.
+[33mc634f97[m CreateDealsOfDay sayfa tasarımı olusturuldu.
+[33ma666bf9[m Ana sayfada ImageSlider icin revizeler yapıldı. DealsOfDay kısmı icin backend ve frontend calısmalarına baslandı.
+[33m3d5b227[m Shopping cart sayfası uzerindeki bildirim hataları duzeltildi butonlara basıldıgında ikişer ikişer artma sorunu üzerinde calısılıyor
+[33mce75b24[m Favorite Product kısmı backend kodları tamamladı ve frontend kısmında sayfa tasarımı yapıldı(Eksikler var)
+[33m82c2fa7[m Search Button kısmı tamamlandı.
+[33m9bce706[m Price filter alanı duzenlendi.
+[33m6dae3c8[m Filtreleme islemlerine devam ediliyor backend de veriler duzgun filtreleniyor fakat ui tarafında gosterilirken eski veriler kalıyor
+[33m23a46ad[m Urunleri Filtreleme konusunda calismalar devam ediliyor
+[33m8d3f632[m RapidApi üzerinden canlı hava durumu cekme isi düzenlendi. Doviz icin calısılıyor
+[33mc2cfaec[m Localization ile ilgili bazı calısmalar yapıldı.
+[33mf6850b7[m RapidApi ile ilgili hava durumu cekme islemi yapıldı fakat konuma gore ip adresinden city e ulasma kısmında hata var duzeltilecek
+[33mc7f5b03[m RabbitMQ icin gerekli server ve pakaetler kuruldu.
+[33mf56bcc4[m Google Cloud Storage Image yukleme ekranı tasarlandı.
+[33m0f37d41[m Image Microservisi icin Google Cloud da bucket olusturuldu SignalR icin bazı düzenlemeler gerceklestirildi fakat yorum sayısını anlık olarak getirirken bir bug var cozulecek
+[33m4e3be5b[m SignalR icin Client Side Paketleri eklendi .
+[33meb7cc09[m Istatistik kısmı genel olcude tamamlandı. SignalR icin yeni bir mikroservis olusturuldu.
+[33m43556c7[m Istatiskilerin backend tarafı halledildi .
+[33m3bf1b5d[m Cargo Customer ile alakalı calısmalar yapıldı örnek veri seti girildi.
+[33mb33bf5d[m Cargo Companyler ile ilgili Crud islemleri gerceklestirildi ornek datalar olusturulup db ye eklendi
+[33m56aa045[m Message islemleri tamamlandı.
+[33m669200b[m Message mikroservisi icin WebAPI projesi olusturuldu. PostgreSQL icin gerekli  olan pakatler kuruldu
+[33m0457714[m User Teması eklendi Layout u olusturuldu Gecmis siparisleri kontrol edecegimiz sayfa tasarımı ve controller olusturuldu.
+[33m75ae450[m Troy da bazı kart numaralarnın gelmeme problemi duzeltildi.
+[33m12297cc[m Payment icin odeme tasarımı olusturuldu.
+[33m4592fc5[m Discount daki http sorunları duzeltildi indirim kuponu basarıyla tamamlandı.
+[33m2bf40a6[m Sepet islemlerinde resim srunu ve null hatası giderildi.
+[33mf2a6e3b[m Ocelet Gateway ile mikroservisler koruma aştınaalınıp dagıtımı tek bir yerden yapıldı.(Eklemeler olacak)
+[33mae1063b[m Comment mikro servisinin tasarım kısmı iyilestirildi. Register ve Login Sayfa tasarımları yapıldı. Authentication icin gerekli bazı düzenlemeler yapıldı bunun üzerinden devam edecek
+[33m42db546[m Admin ve UI tarafında işlemler devam etmeke Yeni Comment mikro  servisi olusturuldu. Urunlerin detaylarıile alakalı dinamikleştirmeişlemlerine devam edildi.
+[33ma75a96c[m Admin sayfaları oluşturulmaya başlandı statik haldeki içerikler databaseden dinamik olarak çekilecek hale getirildi
+[33m42e478c[m Basket Mikro Servisi Olusturuldu. Frontend ve Admin temaları yüklendi Frontends kısmına giriş yapıldı ve bu kısım da UILayout tasarlandı.
+[33m6f51090[m Cargo Mikroservisi ve Token İle güvenliği tamamlandı.
+[33m9d1e8ab[m Poje taslağı oluşturuldu. Yeni mikro servisler eklendi. IdentityServer oluşturuldu. Json Web Token İle bazı güvenlikişlemleri Gerçekleştirildi.
+[33m5227e30[m Add project files.
+[33m054eb6a[m Add .gitattributes and .gitignore.

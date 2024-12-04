@@ -362,4 +362,4 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 # Services klasörü altındaki Images klasöründeki MultiShop.Images Web API projesinin Key klasörü
-Services/Images/MultiShop.Images.WebUI/Key/
+Services/Images/MultiShop.Images/Key/
