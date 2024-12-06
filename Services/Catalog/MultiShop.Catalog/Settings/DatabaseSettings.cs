@@ -16,5 +16,6 @@
         public string AboutCollectionName { get; set; }
         public string ContactCollectionName { get; set; }
         public string DealsOfDayCollectionName { get; set; }
+        public string HourlyDealCollectionName { get; set; }
     }
 }

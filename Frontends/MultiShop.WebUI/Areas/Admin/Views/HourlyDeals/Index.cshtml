@@ -1,0 +1,119 @@
+﻿@model List<ResultHourlyDealDto>
+@{
+    ViewData["Title"] = "Saatlik Fırsatlar";
+    Layout = "~/Areas/Admin/Views/AdminLayout/Index.cshtml";
+}
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saatlik Fırsatlar Yönetimi - MultiShop Yönetici Paneli</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastr@2.1.4/build/toastr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastr@2.1.4/build/toastr.min.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Saatlik Fırsatlar Yönetimi</h1>
+            <div class="flex space-x-3">
+                <button id="generateDealsBtn" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                    Fırsatları Oluştur
+                </button>
+                <button id="clearExpiredDealsBtn" class="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 transition">
+                    Süresi Geçen Fırsatları Temizle
+                </button>
+                <a href="@Url.Action("CreateHourlyDeals")" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                    Fırsat Oluştur
+                </a>
+            </div>
+        </div>
+
+        @if (Model.Any())
+        {
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                @foreach (var deal in Model)
+                {
+                    <div class="bg-white shadow-lg rounded-xl overflow-hidden">
+                        <div class="relative">
+                            <img src="@deal.ProductImageUrl" alt="@deal.ProductName" class="w-full h-48 object-cover">
+                            <div class="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full font-bold">
+                                %@deal.DiscountPercentage İndirim
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <h2 class="text-xl font-semibold text-gray-800 mb-2">@deal.ProductName</h2>
+                            <div class="flex justify-between items-center mb-3">
+                                <div>
+                                    <span class="text-gray-500 line-through mr-2">₺@deal.OriginalPrice</span>
+                                    <span class="text-green-600 font-bold">₺@deal.DiscountedPrice</span>
+                                </div>
+                                <span class="text-sm text-gray-500">@deal.CategoryName</span>
+                            </div>
+                            <div class="flex justify-between items-center text-sm text-gray-600">
+                                <div>
+                                    <strong>Başlangıç:</strong> @deal.StartTime.ToString("dd MMM yyyy HH:mm")
+                                </div>
+                                <div>
+                                    <strong>Bitiş:</strong> @deal.EndTime.ToString("dd MMM yyyy HH:mm")
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative" role="alert">
+                Aktif saatlik fırsat bulunamadı. Yeni fırsatlar oluşturun veya ürün envanterinizi kontrol edin.
+            </div>
+        }
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Toastr yapılandırması
+            toastr.options = {
+                closeButton: true,
+                progressBar: true,
+                positionClass: "toast-top-right",
+                timeOut: 5000
+            };
+
+            // Fırsatları Oluştur butonu
+            $("#generateDealsBtn").click(function() {
+                $.ajax({
+                    url: "@Url.Action("GenerateHourlyDeals", "HourlyDeals")",
+                    type: "POST",
+                    success: function(response) {
+                        toastr.success("Fırsatlar başarıyla oluşturuldu!");
+                        setTimeout(() => location.reload(), 1500);
+                    },
+                    error: function() {
+                        toastr.error("Fırsatlar oluşturulurken bir hata oluştu!");
+                    }
+                });
+            });
+
+            // Süresi Geçen Fırsatları Temizle butonu
+            $("#clearExpiredDealsBtn").click(function() {
+                $.ajax({
+                    url: "@Url.Action("ClearExpiredHourlyDeals", "HourlyDeals")",
+                    type: "POST",
+                    success: function(response) {
+                        toastr.success("Süresi geçen fırsatlar temizlendi!");
+                        setTimeout(() => location.reload(), 1500);
+                    },
+                    error: function() {
+                        toastr.error("Süresi geçen fırsatlar temizlenirken bir hata oluştu!");
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

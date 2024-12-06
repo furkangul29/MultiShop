@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using MultiShop.Catalog.BackgroundServices;
 using MultiShop.Catalog.Entites;
 using MultiShop.Catalog.Services.AboutServices;
 using MultiShop.Catalog.Services.BrandServices;
@@ -10,6 +11,7 @@ using MultiShop.Catalog.Services.DealsOfDayServices;
 using MultiShop.Catalog.Services.FavoriteProductServices;
 using MultiShop.Catalog.Services.FeatureServices;
 using MultiShop.Catalog.Services.FeatureSliderServices;
+using MultiShop.Catalog.Services.HourlyDealServices;
 using MultiShop.Catalog.Services.OfferDiscountServices;
 using MultiShop.Catalog.Services.ProductDetailDetailServices;
 using MultiShop.Catalog.Services.ProductImageServices;
@@ -42,25 +44,21 @@ builder.Services.AddScoped(sp =>
     var database = client.GetDatabase(settings.DatabaseName);
     return database.GetCollection<Product>("Products");
 });
-
-builder.Services.AddSingleton<IMongoClient, MongoClient>(sp =>
+builder.Services.AddScoped(sp =>
 {
+    var client = sp.GetRequiredService<IMongoClient>();
     var settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
-    return new MongoClient(settings.ConnectionString);
-});
-builder.Services.AddSingleton<IMongoClient, MongoClient>(sp =>
-{
-    var settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
-    return new MongoClient(settings.ConnectionString);
+    var database = client.GetDatabase(settings.DatabaseName);
+    return database.GetCollection<Category>("Categories");
 });
 
 builder.Services.AddScoped(sp =>
 {
     var client = sp.GetRequiredService<IMongoClient>();
-    var database = client.GetDatabase("YourDatabaseName");
-    return database.GetCollection<Category>("Categories");
+    var settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
+    var database = client.GetDatabase(settings.DatabaseName);
+    return database.GetCollection<HourlyDeal>("HourlyDeals");
 });
-
 
 builder.Services.AddScoped(sp =>
 {
@@ -103,8 +101,9 @@ builder.Services.AddScoped<IDealsOfDayService, DealsOfDayService>();
 
 builder.Services.AddScoped<IContactService, ContactService>();
 builder.Services.AddScoped<IFavoriteProductService, FavoriteProductService>();
+builder.Services.AddScoped<IHourlyDealService, HourlyDealService>();
 
-
+builder.Services.AddHostedService<HourlyDealBackgroundService>();
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 builder.Services.Configure<DatabaseSettings>(builder.Configuration.GetSection("DatabaseSettings"));

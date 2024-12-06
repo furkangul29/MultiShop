@@ -17,6 +17,7 @@ using MultiShop.WebUI.Services.CatalogServices.DealsOfDayServices;
 using MultiShop.WebUI.Services.CatalogServices.FavoriteProductServices;
 using MultiShop.WebUI.Services.CatalogServices.FeatureServices;
 using MultiShop.WebUI.Services.CatalogServices.FeatureSliderServices;
+using MultiShop.WebUI.Services.CatalogServices.HourlyDealServices;
 using MultiShop.WebUI.Services.CatalogServices.OfferDiscountServices;
 using MultiShop.WebUI.Services.CatalogServices.ProductDetailServices;
 using MultiShop.WebUI.Services.CatalogServices.ProductImageServices;
@@ -185,6 +186,12 @@ builder.Services.AddHttpClient<IDealsOfDayService, DealsOfDayService>(opt =>
     opt.BaseAddress = new Uri($"{values.OcelotUrl}/{values.Catalog.Path}");
 }).AddHttpMessageHandler<ClientCredentialTokenHandler>();
 
+
+builder.Services.AddHttpClient<IHourlyDealService, HourlyDealService>(opt =>
+{
+    opt.BaseAddress = new Uri($"{values.OcelotUrl}/{values.Catalog.Path}");
+}).AddHttpMessageHandler<ClientCredentialTokenHandler>();
+builder.Services.AddScoped<IHourlyDealService, HourlyDealService>();
 
 builder.Services.AddHttpClient<ISpecialOfferService, SpecialOfferService>(opt =>
 {
