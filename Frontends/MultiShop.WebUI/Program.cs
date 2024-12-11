@@ -191,7 +191,8 @@ builder.Services.AddHttpClient<IHourlyDealService, HourlyDealService>(opt =>
 {
     opt.BaseAddress = new Uri($"{values.OcelotUrl}/{values.Catalog.Path}");
 }).AddHttpMessageHandler<ClientCredentialTokenHandler>();
-builder.Services.AddScoped<IHourlyDealService, HourlyDealService>();
+
+//builder.Services.AddScoped<IHourlyDealService, HourlyDealService>();
 
 builder.Services.AddHttpClient<ISpecialOfferService, SpecialOfferService>(opt =>
 {

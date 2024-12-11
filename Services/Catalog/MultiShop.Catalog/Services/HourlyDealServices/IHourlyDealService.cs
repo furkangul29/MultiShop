@@ -9,5 +9,6 @@ namespace MultiShop.Catalog.Services.HourlyDealServices
         Task<List<ResultHourlyDealDto>> GenerateHourlyDealsAsync();
         Task<List<ResultHourlyDealDto>> GetCurrentHourlyDealsAsync();
         Task DeactivateExpiredHourlyDealsAsync();
+        Task<List<DateTime>> GetHourlyDealEndTimesAsync();
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using MultiShop.Catalog.Services.HourlyDealServices;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -33,27 +34,39 @@ namespace MultiShop.Catalog.BackgroundServices
                     {
                         var hourlyDealService = scope.ServiceProvider.GetRequiredService<IHourlyDealService>();
 
-                        // Log the start of the hourly deal generation
-                        _logger.LogInformation($"Starting hourly deal generation at {DateTime.UtcNow}");
+                        _logger.LogInformation($"Checking active hourly deals at {DateTime.UtcNow.AddHours(3)} (Local Time)");
 
-                        // Generate new hourly deals
+                        // Aktif indirimlerin süresi doldu mu kontrol et
+                        var activeDeals = await hourlyDealService.GetCurrentHourlyDealsAsync();
+                        if (activeDeals.Any())
+                        {
+                            var earliestEndTime = activeDeals.Min(deal => deal.EndTime.AddHours(3)); // UTC+3
+                            var delayDuration = earliestEndTime - DateTime.UtcNow.AddHours(3);
+
+                            _logger.LogInformation($"Active deals found. Waiting until {earliestEndTime} (Local Time)");
+                            if (delayDuration > TimeSpan.Zero)
+                            {
+                                await Task.Delay(delayDuration, stoppingToken);
+                            }
+                        }
+
+                        _logger.LogInformation($"Starting hourly deal generation at {DateTime.UtcNow.AddHours(3)} (Local Time)");
+
+                        // Yeni indirimleri oluştur
                         await hourlyDealService.GenerateHourlyDealsAsync();
 
-                        // Clean up expired deals
+                        // Süresi dolmuş indirimleri temizle
                         await hourlyDealService.DeactivateExpiredHourlyDealsAsync();
 
-                        _logger.LogInformation($"Completed hourly deal generation at {DateTime.UtcNow}");
+                        _logger.LogInformation($"Completed hourly deal generation at {DateTime.UtcNow.AddHours(3)} (Local Time)");
                     }
 
-                    // Wait for the next interval
+                    // Varsayılan interval
                     await Task.Delay(_generateInterval, stoppingToken);
                 }
                 catch (Exception ex)
                 {
-                    // Log any unexpected errors
                     _logger.LogError(ex, "An error occurred during hourly deal background service execution");
-
-                    // Wait a bit before retrying to prevent rapid error cycling
                     await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
                 }
             }

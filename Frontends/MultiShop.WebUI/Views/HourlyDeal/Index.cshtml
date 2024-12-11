@@ -1,0 +1,74 @@
+﻿@model List<ResultHourlyDealDto>
+
+@{
+    ViewData["Title"] = "Saatlik Fırsatlar";
+    Layout = "~/Views/UILayout/_UILayout.cshtml";
+
+    var endTime = ViewBag.EndTimes; // Controller'dan gelen EndTime
+}
+
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg p-6 mb-8 text-white text-center">
+        <h2 class="text-2xl font-semibold mb-4">Fırsatların Bitmesine Kalan Süre</h2>
+        <div class="grid grid-cols-3 gap-4 max-w-md mx-auto">
+            <div class="flex flex-col items-center">
+                <span id="countdown-hours" class="text-4xl font-extrabold"></span>
+                <span class="text-sm font-medium">Saat</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <span id="countdown-minutes" class="text-4xl font-extrabold"></span>
+                <span class="text-sm font-medium">Dakika</span>
+            </div>
+            <div class="flex flex-col items-center">
+                <span id="countdown-seconds" class="text-4xl font-extrabold"></span>
+                <span class="text-sm font-medium">Saniye</span>
+            </div>
+        </div>
+    </div>
+
+    @await Component.InvokeAsync("_HourlyDealComponentPartial", new { hourlyDeals = Model })
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        const endTimeString = '@endTime';
+        console.log("Gelen endTimeString:", endTimeString); // Konsola yazdırarak kontrol et
+
+        let countdownInterval;
+
+        try {
+            const endTime = new Date(endTimeString);
+
+            if (isNaN(endTime)) {
+                throw new Error("Geçersiz bitiş zamanı.");
+            }
+
+            function updateCountdown() {
+                const now = new Date();
+                const diff = endTime - now;
+
+                if (diff > 0) {
+                    const hours = Math.floor(diff / (1000 * 60 * 60));
+                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                    $('#countdown-hours').text(String(hours).padStart(2, '0'));
+                    $('#countdown-minutes').text(String(minutes).padStart(2, '0'));
+                    $('#countdown-seconds').text(String(seconds).padStart(2, '0'));
+                } else {
+                    clearInterval(countdownInterval);
+                    $('#countdown-hours').text("00");
+                    $('#countdown-minutes').text("00");
+                    $('#countdown-seconds').text("00");
+                }
+            }
+
+            countdownInterval = setInterval(updateCountdown, 1000);
+            updateCountdown();
+        } catch (error) {
+            console.error("Geri sayım başlatılamadı:", error.message);
+        }
+    });
+</script>

@@ -18,18 +18,32 @@ namespace MultiShop.Catalog.Controllers
             _hourlyDealService = hourlyDealService;
         }
 
-        [HttpGet("generate")]
+        [HttpPost("generate")]
         public async Task<IActionResult> GenerateHourlyDeals()
         {
             var deals = await _hourlyDealService.GenerateHourlyDealsAsync();
             return Ok(deals);
         }
 
-        [HttpGet]
+        [HttpGet("current")]
         public async Task<IActionResult> GetCurrentHourlyDeals()
         {
             var currentDeals = await _hourlyDealService.GetCurrentHourlyDealsAsync();
             return Ok(currentDeals);
+        }
+
+        [HttpGet("endtimes")]
+        public async Task<IActionResult> GetHourlyDealEndTimes()
+        {
+            try
+            {
+                var endTimes = await _hourlyDealService.GetHourlyDealEndTimesAsync();
+                return Ok(endTimes);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Bir hata oluştu: {ex.Message}");
+            }
         }
     }
 }

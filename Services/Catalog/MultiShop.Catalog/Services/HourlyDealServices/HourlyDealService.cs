@@ -31,23 +31,28 @@ namespace MultiShop.Catalog.Services.HourlyDealServices
         {
             try
             {
-                // Mevcut saatte daha önce seçilmiş ürünleri al
+                var currentTime = DateTime.UtcNow.AddHours(3);
                 var currentHourDeals = await _hourlyDealCollection
-                    .Find(x => x.StartTime.Date == DateTime.UtcNow.Date)
-                    .ToListAsync();
+                .Find(x => x.EndTime < currentTime).ToListAsync();
 
-                // Daha önce seçilmiş ürünlerin ID'lerini al
                 var excludedProductIds = currentHourDeals
                     .Select(x => x.ProductId)
                     .ToList();
 
-                // Aktif olan Daily Deals'ları da çıkar
                 var activeDailyDeals = await _dealsOfDayCollection
                     .Find(x => x.IsActive)
                     .ToListAsync();
+                var activeDeals = await _hourlyDealCollection
+                        .Find(x => x.StartTime <= currentTime && x.EndTime >= currentTime)
+                        .ToListAsync();
+
+                if (activeDeals.Any())
+                {
+                    throw new InvalidOperationException("Aktif saatlik indirimler mevcut, yeni indirimler oluşturulamaz.");
+                }
+
                 excludedProductIds.AddRange(activeDailyDeals.Select(x => x.ProductId));
 
-                // Uygun ürünleri filtrele
                 var availableProducts = await _productCollection
                     .Find(x => !excludedProductIds.Contains(x.ProductId))
                     .ToListAsync();
@@ -57,14 +62,12 @@ namespace MultiShop.Catalog.Services.HourlyDealServices
                     return new List<ResultHourlyDealDto>();
                 }
 
-                // Rastgele 5 ürün seç (veya mevcut ürün sayısı kadar)
                 var random = new Random();
                 var selectedProducts = availableProducts
                     .OrderBy(x => random.Next())
                     .Take(Math.Min(5, availableProducts.Count))
                     .ToList();
 
-                // Seçilen ürünlerin kategorilerini al
                 var categoryIds = selectedProducts
                     .Where(p => !string.IsNullOrEmpty(p.CategoryId))
                     .Select(x => x.CategoryId)
@@ -77,7 +80,6 @@ namespace MultiShop.Catalog.Services.HourlyDealServices
                         .ToListAsync()
                     : new List<Category>();
 
-                // Hourly Deal'ları oluştur
                 var hourlyDeals = new List<HourlyDeal>();
                 var resultDeals = new List<ResultHourlyDealDto>();
 
@@ -89,25 +91,21 @@ namespace MultiShop.Catalog.Services.HourlyDealServices
                         OriginalPrice = product.ProductPrice,
                         DiscountPercentage = 25,
                         DiscountedPrice = product.ProductPrice * 0.75m,
-                        StartTime = DateTime.UtcNow,
-                        EndTime = DateTime.UtcNow.AddHours(3)
+                        StartTime = DateTime.UtcNow.AddHours(3),
+                        EndTime = DateTime.UtcNow.AddHours(6)
                     };
 
-                    // Ürün fiyatını güncelle
                     var productUpdate = Builders<Product>.Update
                         .Set(p => p.ProductPrice, deal.DiscountedPrice);
                     await _productCollection.UpdateOneAsync(
                         p => p.ProductId == product.ProductId,
                         productUpdate);
 
-                    // Deal'ı kaydet
                     await _hourlyDealCollection.InsertOneAsync(deal);
 
-                    // Kategoriyi bul
                     var category = categories
                         .FirstOrDefault(c => c.CategoryId == product.CategoryId);
 
-                    // DTO oluştur
                     var resultDeal = new ResultHourlyDealDto
                     {
                         HourlyDealId = deal.HourlyDealId,
@@ -129,14 +127,13 @@ namespace MultiShop.Catalog.Services.HourlyDealServices
             }
             catch (Exception ex)
             {
-                // Hata durumunda loglama yapılabilir
                 throw new Exception("Saatlik İndirimler oluşturulurken bir hata oluştu.", ex);
             }
         }
 
         public async Task<List<ResultHourlyDealDto>> GetCurrentHourlyDealsAsync()
         {
-            var currentTime = DateTime.UtcNow;
+            var currentTime = DateTime.UtcNow.AddHours(3);
             var currentDeals = await _hourlyDealCollection
                 .Find(x => x.StartTime <= currentTime && x.EndTime >= currentTime)
                 .ToListAsync();
@@ -182,18 +179,25 @@ namespace MultiShop.Catalog.Services.HourlyDealServices
             }).ToList();
         }
 
+
+
+        public async Task<List<DateTime>> GetHourlyDealEndTimesAsync()
+        {
+            var currentDeals = await GetCurrentHourlyDealsAsync();
+            return currentDeals.Select(deal => deal.EndTime).ToList();
+        }
+
         public async Task DeactivateExpiredHourlyDealsAsync()
         {
             try
             {
-                var currentTime = DateTime.UtcNow;
+                var currentTime = DateTime.UtcNow.AddHours(3);
                 var expiredDeals = await _hourlyDealCollection
                     .Find(x => x.EndTime <= currentTime)
                     .ToListAsync();
 
                 foreach (var deal in expiredDeals)
                 {
-                    // Ürün fiyatını eski haline getir
                     var productUpdate = Builders<Product>.Update
                         .Set(p => p.ProductPrice, deal.OriginalPrice);
 
@@ -201,7 +205,6 @@ namespace MultiShop.Catalog.Services.HourlyDealServices
                         p => p.ProductId == deal.ProductId,
                         productUpdate);
 
-                    // Expired deal'ı sil
                     await _hourlyDealCollection.DeleteOneAsync(
                         x => x.HourlyDealId == deal.HourlyDealId);
                 }

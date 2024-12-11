@@ -77,7 +77,7 @@ builder.Services.AddScoped(sp =>
     var client = sp.GetRequiredService<IMongoClient>();
     var settings = sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
     var database = client.GetDatabase(settings.DatabaseName);
-    return database.GetCollection<DealsOfDay>("DealsOfDayCollectionName");
+    return database.GetCollection<DealsOfDay>("DealsOfDay");
 });
 
 builder.Services.AddHostedService<DealsExpirationService>();

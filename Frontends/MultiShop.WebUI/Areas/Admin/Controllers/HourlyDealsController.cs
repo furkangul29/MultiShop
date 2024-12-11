@@ -39,7 +39,7 @@ namespace MultiShop.Catalog.Areas.Admin.Controllers
 
         [HttpPost]
         [Route("GenerateHourlyDeals")]
-        [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> GenerateHourlyDeals()
         {
             try
@@ -76,7 +76,7 @@ namespace MultiShop.Catalog.Areas.Admin.Controllers
 
         [HttpPost]
         [Route("ClearExpiredHourlyDeals")]
-        [ValidateAntiForgeryToken]
+
         public async Task<IActionResult> ClearExpiredHourlyDeals()
         {
             try

@@ -1,0 +1,30 @@
+﻿@model List<ResultHourlyDealDto>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 py-8">
+    @foreach (var deal in Model)
+    {
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden transition-transform duration-300 hover:scale-105">
+            <div class="relative">
+                <img src="@deal.ProductImageUrl" alt="@deal.ProductName" class="w-full h-64 object-cover object-center">
+                <div class="absolute top-4 left-4 bg-yellow-500 text-white px-3 py-1 rounded-full">
+                    %@deal.DiscountPercentage İndirim
+                </div>
+            </div>
+
+            <div class="p-4">
+                <h3 class="text-lg font-semibold text-gray-800 mb-2">@deal.ProductName</h3>
+                <p class="text-sm text-gray-600 mb-2">@deal.CategoryName</p>
+
+                <div class="flex items-center justify-between">
+                    <div class="flex flex-col">
+                        <span class="text-2xl font-bold text-red-600">@deal.DiscountedPrice.ToString("N2") ₺</span>
+                        <span class="text-sm text-gray-500 line-through">@deal.OriginalPrice.ToString("N2") ₺</span>
+                    </div>
+                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        Sepete Ekle
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+</div>
