@@ -3,72 +3,213 @@
 @{
     ViewData["Title"] = "Saatlik Fırsatlar";
     Layout = "~/Views/UILayout/_UILayout.cshtml";
-
-    var endTime = ViewBag.EndTimes; // Controller'dan gelen EndTime
+    var endTime = ViewBag.EndTimes;
 }
 
-<div class="container mx-auto px-4 py-8">
-    <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg p-6 mb-8 text-white text-center">
-        <h2 class="text-2xl font-semibold mb-4">Fırsatların Bitmesine Kalan Süre</h2>
-        <div class="grid grid-cols-3 gap-4 max-w-md mx-auto">
-            <div class="flex flex-col items-center">
-                <span id="countdown-hours" class="text-4xl font-extrabold"></span>
-                <span class="text-sm font-medium">Saat</span>
-            </div>
-            <div class="flex flex-col items-center">
-                <span id="countdown-minutes" class="text-4xl font-extrabold"></span>
-                <span class="text-sm font-medium">Dakika</span>
-            </div>
-            <div class="flex flex-col items-center">
-                <span id="countdown-seconds" class="text-4xl font-extrabold"></span>
-                <span class="text-sm font-medium">Saniye</span>
+<!-- CDN'ler - Head kısmına ekleyin -->
+<link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 py-12">
+    <!-- Yeni Modern Sayaç Tasarımı -->
+    <div class="container mx-auto px-4 mb-16">
+        <div class="relative overflow-hidden bg-white rounded-2xl shadow-2xl p-8">
+            <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div>
+
+            <h1 class="text-4xl font-black text-center mb-8 bg-gradient-to-r from-blue-600 to-purple-600 text-transparent bg-clip-text">
+                Süper Fırsatların Bitmesine Kalan Süre
+            </h1>
+
+            <div class="flex justify-center gap-6">
+                <div class="countdown-box">
+                    <div class="bg-gradient-to-b from-purple-600 to-blue-700 rounded-xl p-6 shadow-lg transform hover:scale-105 transition-all">
+                        <span id="countdown-hours" class="text-5xl font-black text-white"></span>
+                        <span class="block text-sm font-medium text-purple-200 mt-2">Saat</span>
+                    </div>
+                </div>
+
+                <div class="countdown-box">
+                    <div class="bg-gradient-to-b from-purple-600 to-blue-700 rounded-xl p-6 shadow-lg transform hover:scale-105 transition-all">
+                        <span id="countdown-minutes" class="text-5xl font-black text-white"></span>
+                        <span class="block text-sm font-medium text-purple-200 mt-2">Dakika</span>
+                    </div>
+                </div>
+
+                <div class="countdown-box">
+                    <div class="bg-gradient-to-b from-purple-600 to-blue-700 rounded-xl p-6 shadow-lg transform hover:scale-105 transition-all">
+                        <span id="countdown-seconds" class="text-5xl font-black text-white"></span>
+                        <span class="block text-sm font-medium text-purple-200 mt-2">Saniye</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    @await Component.InvokeAsync("_HourlyDealComponentPartial", new { hourlyDeals = Model })
+    <!-- Modern Ürün Kartları -->
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            @foreach (var deal in Model)
+            {
+                <div class="group">
+                    <div class="relative bg-white rounded-2xl shadow-xl overflow-hidden transition-all duration-300 hover:scale-[1.02] hover:shadow-2xl">
+                        <!-- Ürün Görseli - Düzeltilmiş Kısım -->
+                        <div class="relative aspect-[4/3] overflow-hidden h-64">
+                            <img src="@deal.ProductImageUrl"
+                                 alt="@deal.ProductName"
+                                 class="w-full h-full object-cover object-center transition-transform duration-300 group-hover:scale-110"
+                                 onerror="this.src='/default-image.jpg'" /> <!-- Yedek resim URL'si -->
+                            <!-- Gradient Overlay -->
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
+                            <!-- İndirim Badge -->
+                            <div class="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+                                %@deal.DiscountPercentage İndirim
+                            </div>
+                        </div>
+
+                        <!-- Ürün Bilgileri -->
+                        <div class="p-6">
+                            <div class="mb-3">
+                                <span class="inline-block px-3 py-1 text-xs font-semibold text-purple-600 bg-purple-100 rounded-full">
+                                    @deal.CategoryName
+                                </span>
+                            </div>
+
+                            <h3 class="text-lg font-bold text-gray-800 mb-2 line-clamp-2">@deal.ProductName</h3>
+
+                            <div class="flex items-end gap-3 mb-4">
+                                <span class="text-2xl font-black text-purple-600">@deal.DiscountedPrice.ToString("N2") ₺</span>
+                                <span class="text-sm text-gray-400 line-through">@deal.OriginalPrice.ToString("N2") ₺</span>
+                            </div>
+
+                            <button class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-xl font-semibold transition-all duration-300 hover:from-purple-700 hover:to-blue-700 hover:shadow-lg transform hover:-translate-y-1">
+                                Sepete Ekle
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 </div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+    .countdown-box {
+        min-width: 120px;
+        text-align: center;
+    }
+
+    /* Sayaç animasyonu için ek stiller */
+    .countdown-animate {
+        animation: pulse 1s ease-in-out;
+    }
+
+    /* Resim container'ı için sabit boyut ayarları */
+    .aspect-[4/3] {
+        position: relative;
+        width: 100%;
+        height: 100%; /* Sabit yükseklik */
+        overflow: hidden;
+    }
+
+        /* Resim yükleme animasyonu için */
+        .aspect-[4/3] img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Resmi container'a sığdırır */
+            object-position: center; /* Resmi ortalar */
+        }
+
+        /* Resim yüklenene kadar gösterilecek placeholder */
+        .aspect-[4/3]::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite linear;
+        }
+
+    /* Kart boyutunu standartlaştırma */
+    .group {
+        height: 100%;
+    }
+
+        .group > div {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+    /* Ürün bilgileri kısmı için */
+    .p-6 {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* Ürün adı için maksimum 2 satır */
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        height: 2.5em; /* Yaklaşık 2 satır yüksekliği */
+    }
+
+    /* Fiyat ve buton kısmını alta sabitlemek için */
+    .p-6 button {
+        margin-top: auto;
+    }
+
+    /* Shimmer animasyonu için */
+    @@keyframes shimmer {
+        0% {
+            background-position: -200% 0;
+        }
+
+        100% {
+            background-position: 200% 0;
+        }
+    }
+</style>
 
 <script>
     $(document).ready(function () {
-        const endTimeString = '@endTime';
-        console.log("Gelen endTimeString:", endTimeString); // Konsola yazdırarak kontrol et
+        const endTime = new Date("@endTime").getTime();
 
-        let countdownInterval;
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = endTime - now;
 
-        try {
-            const endTime = new Date(endTimeString);
+            if (distance > 0) {
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-            if (isNaN(endTime)) {
-                throw new Error("Geçersiz bitiş zamanı.");
+                // Sayıları güncelle ve animasyon ekle
+                $("#countdown-hours").text(hours.toString().padStart(2, '0')).addClass('countdown-animate');
+                $("#countdown-minutes").text(minutes.toString().padStart(2, '0')).addClass('countdown-animate');
+                $("#countdown-seconds").text(seconds.toString().padStart(2, '0')).addClass('countdown-animate');
+
+                // Animasyon sınıfını kaldır
+                setTimeout(() => {
+                    $(".countdown-animate").removeClass('countdown-animate');
+                }, 1000);
             }
-
-            function updateCountdown() {
-                const now = new Date();
-                const diff = endTime - now;
-
-                if (diff > 0) {
-                    const hours = Math.floor(diff / (1000 * 60 * 60));
-                    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-                    $('#countdown-hours').text(String(hours).padStart(2, '0'));
-                    $('#countdown-minutes').text(String(minutes).padStart(2, '0'));
-                    $('#countdown-seconds').text(String(seconds).padStart(2, '0'));
-                } else {
-                    clearInterval(countdownInterval);
-                    $('#countdown-hours').text("00");
-                    $('#countdown-minutes').text("00");
-                    $('#countdown-seconds').text("00");
-                }
-            }
-
-            countdownInterval = setInterval(updateCountdown, 1000);
-            updateCountdown();
-        } catch (error) {
-            console.error("Geri sayım başlatılamadı:", error.message);
         }
+
+        // İlk yükleme
+        updateCountdown();
+
+        // Her saniye güncelle
+        setInterval(updateCountdown, 1000);
     });
 </script>
