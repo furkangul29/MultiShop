@@ -83,7 +83,7 @@
                                 <span class="text-sm text-gray-400 line-through">@deal.OriginalPrice.ToString("N2") ₺</span>
                             </div>
 
-                            <button class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-xl font-semibold transition-all duration-300 hover:from-purple-700 hover:to-blue-700 hover:shadow-lg transform hover:-translate-y-1">
+                            <button onclick="addToBasket('@deal.ProductId')" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 rounded-xl font-semibold transition-all duration-300 hover:from-purple-700 hover:to-blue-700 hover:shadow-lg transform hover:-translate-y-1  ">
                                 Sepete Ekle
                             </button>
                         </div>
@@ -181,6 +181,10 @@
     }
 </style>
 
+<!-- Toastify CDN -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
 <script>
     $(document).ready(function () {
         const endTime = new Date("@endTime").getTime();
@@ -212,4 +216,53 @@
         // Her saniye güncelle
         setInterval(updateCountdown, 1000);
     });
+
+    function addToBasket(productId) {
+        fetch(`/ShoppingCart/AddBasketItem/${productId}`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Başarı mesajı
+                    Toastify({
+                        text: data.message,
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "green",
+                    }).showToast();
+                } else {
+                    // Hata mesajı ve yönlendirme
+                    Toastify({
+                        text: data.message,
+                        duration: 3000,
+                        close: true,
+                        gravity: "top",
+                        position: "right",
+                        backgroundColor: "red",
+                    }).showToast();
+
+                    // Giriş sayfasına yönlendirme
+                    setTimeout(() => {
+                        window.location.href = '/Login/Index';
+                    }, 3000); // 3 saniye sonra yönlendirme
+                }
+            })
+            .catch(error => {
+                console.error("Bir hata oluştu:", error);
+                Toastify({
+                    text: "Bir hata oluştu. Lütfen tekrar deneyin.",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    backgroundColor: "red",
+                }).showToast();
+            });
+    }
 </script>
