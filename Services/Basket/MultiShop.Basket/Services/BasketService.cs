@@ -14,12 +14,12 @@ namespace MultiShop.Basket.Services
         public async Task DeleteBasket(string userId)
         {
             await _redisService.GetDb().KeyDeleteAsync(userId);
-        }
-        public async Task<BasketTotalDto> GetBasket(string userId)
+        } public async Task<BasketTotalDto> GetBasket(string userId)
         {
             var existBasket = await _redisService.GetDb().StringGetAsync(userId);
             return JsonSerializer.Deserialize<BasketTotalDto>(existBasket);
         }
+       
         public async Task SaveBasket(BasketTotalDto basketTotalDto)
         {
             var jsonData = JsonSerializer.Serialize(basketTotalDto);

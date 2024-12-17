@@ -61,13 +61,48 @@
                             <i class="fas fa-heart text-primary"></i>
                             <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">0</span>
                         </a>
-                        <a href="" class="btn px-0 mx-2">
+                        <a href="/ShoppingCart/Index" class="btn px-0 mx-2">
                             <i class="fas fa-shopping-cart text-primary"></i>
-                            <span class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">0</span>
+                            <span id="cartItemCount" class="badge text-secondary border border-secondary rounded-circle" style="padding-bottom: 2px;">0</span>
                         </a>
+
                     </div>
                 </div>
             </nav>
         </div>
     </div>
 </div>
+<script>
+    // Sayfa yüklendiğinde sepet öğesi sayısını güncelle
+    document.addEventListener("DOMContentLoaded", function () {
+        updateCartItemCount();
+    });
+
+    function updateCartItemCount() {
+        fetch('/ShoppingCart/GetBasketItemCount')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('HTTP error ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Data içeriğini konsola yazdır
+                console.log("API'den dönen veri:", data);
+
+                // Dönen verinin itemCount değerine erişelim
+                const cartItemCountElement = document.getElementById('cartItemCount');
+                cartItemCountElement.textContent = data.itemCount;  // itemCount küçük harfle
+
+                // Eğer itemCount null veya undefined ise, buna göre işlemler yapabilirsiniz
+                if (data.itemCount === undefined || data.itemCount === null) {
+                    console.log("itemCount değeri geçersiz:", data.itemCount);
+                }
+            })
+            .catch(error => {
+                console.error('Sepet öğesi sayısı güncellenirken hata oluştu:', error);
+            });
+    }
+</script>
+
+

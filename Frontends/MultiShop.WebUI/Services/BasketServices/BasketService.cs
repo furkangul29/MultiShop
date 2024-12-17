@@ -63,5 +63,21 @@ namespace MultiShop.WebUI.Services.BasketServices
         {
             await _httpClient.PostAsJsonAsync<BasketTotalDto>("baskets", basketTotalDto);
         }
+
+        public async Task<int> GetBasketItemCount()
+        {
+            var responseMessage = await _httpClient.GetAsync("baskets/GetBasketItemCount");
+
+            if (responseMessage.IsSuccessStatusCode)
+            {
+                // Doğru sınıfı kullanarak gelen yanıtı alıyoruz
+                var values = await responseMessage.Content.ReadFromJsonAsync<ItemCountResponse>();
+                return values?.ItemCount ?? 0;  // Eğer ItemCount null ise, 0 döndür
+            }
+
+            // Hata durumunda 0 döndür
+            return 0;
+        }
+
     }
 }

@@ -40,5 +40,14 @@ namespace MultiShop.Basket.Controllers
             await _basketService.DeleteBasket(_loginService.GetUserId);
             return Ok("Sepet başarıyla silindi");
         }
+
+        [HttpGet("GetBasketItemCount")]
+        public async Task<IActionResult> GetBasketItemCount()
+        {
+            var user = User.Claims;
+            var values = await _basketService.GetBasket(_loginService.GetUserId);
+            return Ok(new { ItemCount = values.BasketItemCount });
+        }
+
     }
 }
