@@ -1,47 +1,87 @@
 ﻿@model List<ResultProductDto>
 
 <div class="container-fluid pt-5 pb-3">
-    <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">Öne Çıkan Ürünler</span></h2>
+    <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4">
+        <span class="bg-secondary pr-3">Öne Çıkan Ürünler</span>
+    </h2>
     <div class="row px-xl-5">
         @foreach (var item in Model)
 
-
-
         {
 
+            var dealsOfDay = ViewBag.DealsOfDay as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
+
+            var hourlyDeals = ViewBag.HourlyDeals as IEnumerable<dynamic> ?? Enumerable.Empty<dynamic>();
 
 
-            decimal x = ((item.ProductPrice / 100) * 15) + item.ProductPrice;
+
+            var isDealOfDay = dealsOfDay.Any(d => d.ProductId == item.ProductId);
+
+            var isHourlyDeal = hourlyDeals.Any(h => h.ProductId == item.ProductId);
+
+
+
+            var fullStars = (int)item.AverageRating;
+
+            var hasHalfStar = (item.AverageRating - fullStars) >= 0.5;
+
+            var emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
 
             <div class="col-lg-3 col-md-4 col-sm-6 pb-1">
                 <div class="product-item bg-light mb-4">
-                    <div class="product-img position-relative overflow-hidden">
-                        <img class="img-fluid w-100" src="@item.ProductImageUrl" alt="">
+                    <div class="product-img position-relative overflow-hidden" style="height: 400px;">
+                        <img class="img-fluid w-100 h-100 object-fit-cover" src="@item.ProductImageUrl" alt="@item.ProductName">
                         <div class="product-action">
                             <a class="btn btn-outline-dark btn-square" onclick="addToBasket('@item.ProductId')">
-    <i class="fa fa-shopping-cart"></i>
-</a>
-
+                                <i class="fa fa-shopping-cart"></i>
+                            </a>
                             <a class="btn btn-outline-dark btn-square favorite-btn"
                                data-product-id="@item.ProductId"
                                onclick="toggleFavorite(this, '@item.ProductId')">
                                 <i class="far fa-heart favorite-icon"></i>
                             </a>
-                            <a class="btn btn-outline-dark btn-square" href="/ProductList/ProductDetail/@item.ProductId"><i class="fa fa-search"></i></a>
+                            <a class="btn btn-outline-dark btn-square" href="/ProductList/ProductDetail/@item.ProductId">
+                                <i class="fa fa-search"></i>
+                            </a>
                         </div>
                     </div>
                     <div class="text-center py-4">
-                        <a class="h6 text-decoration-none text-truncate" href="/ProductList/ProductDetail/@item.ProductId">@item.ProductName</a>
+                        <a class="h6 text-decoration-none text-truncate" href="/ProductList/ProductDetail/@item.ProductId">
+                            @item.ProductName
+                        </a>
                         <div class="d-flex align-items-center justify-content-center mt-2">
-                            <h5>@item.ProductPrice ₺</h5><h6 class="text-muted ml-2"><del>@x ₺</del></h6>
+                            @if ((isDealOfDay || isHourlyDeal) && item.DiscountedPrice > 0)
+
+                            {
+                                <h5>@string.Format(new System.Globalization.CultureInfo("tr-TR"), "{0:C2}", item.DiscountedPrice)</h5>
+                                <h6 class="text-muted ml-2">
+                                    <del>@string.Format(new System.Globalization.CultureInfo("tr-TR"), "{0:C2}", item.ProductPrice)</del>
+                                </h6>
+                            }
+
+                            else
+
+                            {
+                                <h5>@string.Format(new System.Globalization.CultureInfo("tr-TR"), "{0:C2}", item.ProductPrice)</h5>
+                            }
                         </div>
                         <div class="d-flex align-items-center justify-content-center mb-1">
-                            <small class="fa fa-star text-primary mr-1"></small>
-                            <small class="fa fa-star text-primary mr-1"></small>
-                            <small class="fa fa-star text-primary mr-1"></small>
-                            <small class="fa fa-star text-primary mr-1"></small>
-                            <small class="fa fa-star text-primary mr-1"></small>
-                            <small>(25)</small>
+                            @for (var i = 0; i < fullStars; i++)
+
+                            {
+                                <small class="fa fa-star text-primary mr-1"></small>
+                            }
+                            @if (hasHalfStar)
+
+                            {
+                                <small class="fa fa-star-half-alt text-primary mr-1"></small>
+                            }
+                            @for (var i = 0; i < emptyStars; i++)
+
+                            {
+                                <small class="fa fa-star text-muted mr-1"></small>
+                            }
+                            <small>(@item.ReviewCount)</small>
                         </div>
                     </div>
                 </div>
@@ -49,6 +89,10 @@
         }
     </div>
 </div>
+
+
+
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">

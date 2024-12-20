@@ -14,5 +14,10 @@ namespace MultiShop.DtoLayer.CatalogDtos.ProductDtos
         public string ProductImageUrl { get; set; }
         public string ProductDescription { get; set; }
         public string CategoryId { get; set; }
+
+        // Yeni özellikler
+        public double AverageRating { get; set; } // Dinamik rating hesaplaması
+        public int ReviewCount { get; set; } // Yorum sayısı
+        public decimal? DiscountedPrice { get; set; } // Yeni property
     }
 }

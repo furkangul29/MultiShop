@@ -12,5 +12,9 @@
         public string? Size { get; set; }
 
         public bool InStock { get; set; }
+
+        // Yeni özellikler
+        public double AverageRating { get; set; } // Dinamik rating hesaplaması
+        public int ReviewCount { get; set; } // Yorum sayısı
     }
 }

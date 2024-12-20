@@ -63,5 +63,13 @@ namespace MultiShop.WebUI.Services.CommentServices
             var values = await responseMessage.Content.ReadFromJsonAsync<int>();
             return values;
         }
+        public async Task<ProductRatingStatsDto> GetProductRatingStats(string productId)
+        {
+            var responseMessage = await _httpClient.GetAsync($"comments/GetProductRatingStats/{productId}");
+            var jsonData = await responseMessage.Content.ReadAsStringAsync();
+            var values = JsonConvert.DeserializeObject<ProductRatingStatsDto>(jsonData);
+            return values;
+        }
+
     }
 }

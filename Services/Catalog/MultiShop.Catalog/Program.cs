@@ -51,6 +51,12 @@ builder.Services.AddScoped(sp =>
     var database = client.GetDatabase(settings.DatabaseName);
     return database.GetCollection<Category>("Categories");
 });
+builder.Services.AddHttpClient("CommentAPI", c =>
+{
+    c.BaseAddress = new Uri("https://localhost:7005");
+    c.DefaultRequestHeaders.Add("Accept", "application/json");
+});
+
 
 builder.Services.AddScoped(sp =>
 {
@@ -111,6 +117,7 @@ builder.Services.AddScoped<IDatabaseSettings>(sp =>
 {
     return sp.GetRequiredService<IOptions<DatabaseSettings>>().Value;
 });
+builder.Services.AddHttpClient();
 
 
 builder.Services.AddControllers();

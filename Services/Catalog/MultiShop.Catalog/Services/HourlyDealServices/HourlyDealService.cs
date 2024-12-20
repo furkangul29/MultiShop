@@ -198,8 +198,10 @@ namespace MultiShop.Catalog.Services.HourlyDealServices
 
                 foreach (var deal in expiredDeals)
                 {
+                    var originalPriceRounded = Math.Round(deal.OriginalPrice, 2);
+
                     var productUpdate = Builders<Product>.Update
-                        .Set(p => p.ProductPrice, deal.OriginalPrice);
+                        .Set(p => p.ProductPrice, originalPriceRounded); 
 
                     await _productCollection.UpdateOneAsync(
                         p => p.ProductId == deal.ProductId,
@@ -214,5 +216,6 @@ namespace MultiShop.Catalog.Services.HourlyDealServices
                 throw new Exception("Saatlik İndirimler temizlenirken bir hata oluştu.", ex);
             }
         }
+
     }
 }

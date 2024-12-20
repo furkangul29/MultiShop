@@ -6,7 +6,7 @@ using MultiShop.Comment.Entities;
 
 namespace MultiShop.Comment.Controllers
 {
-    [Authorize]
+   
     [Route("api/[controller]")]
     [ApiController]
     public class CommentsController : ControllerBase
@@ -80,5 +80,41 @@ namespace MultiShop.Comment.Controllers
             var value = _context.UserComments.Count();
             return Ok(value);
         }
+
+
+        [HttpGet("GetProductRatingStats")]
+        public IActionResult GetProductRatingStats(string productId)
+        {
+            if (string.IsNullOrEmpty(productId))
+            {
+                return BadRequest("ProductId gereklidir.");
+            }
+
+            // Ürüne ait yorumları getir
+            var comments = _context.UserComments
+                .Where(x => x.ProductId == productId)
+                .ToList();
+
+            if (!comments.Any())
+            {
+                return Ok(new
+                {
+                    AverageRating = 0,
+                    TotalReviews = 0
+                });
+            }
+
+            var totalReviews = comments.Count(); // Toplam yorum sayısı
+            var averageRating = Math.Round(comments.Average(x => x.Rating), 1); // Ortalama puan
+
+            return Ok(new
+            {
+                AverageRating = averageRating,
+                TotalReviews = totalReviews
+            });
+        }
+
+
+
     }
 }

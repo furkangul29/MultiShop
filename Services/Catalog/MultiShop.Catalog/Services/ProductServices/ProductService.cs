@@ -6,6 +6,7 @@ using MultiShop.Catalog.Dtos.ProductDtos;
 using MultiShop.Catalog.Entites;
 using MultiShop.Catalog.Settings;
 using MultiShop.DtoLayer.CatalogDtos.ProductDtos;
+using Newtonsoft.Json;
 
 namespace MultiShop.Catalog.Services.ProductServices
 {
@@ -14,13 +15,15 @@ namespace MultiShop.Catalog.Services.ProductServices
         private readonly IMapper _mapper;
         private readonly IMongoCollection<Product> _productCollection;
         private readonly IMongoCollection<Category> _categoryCollection;
-        public ProductService(IMapper mapper, IDatabaseSettings _databaseSettings)
+        private readonly IHttpClientFactory _httpClientFactory;
+        public ProductService(IMapper mapper, IDatabaseSettings _databaseSettings, IHttpClientFactory httpClientFactory)
         {
             var client = new MongoClient(_databaseSettings.ConnectionString);
             var database = client.GetDatabase(_databaseSettings.DatabaseName);
             _productCollection = database.GetCollection<Product>(_databaseSettings.ProductCollectionName);
             _categoryCollection = database.GetCollection<Category>(_databaseSettings.CategoryCollectionName);
             _mapper = mapper;
+            _httpClientFactory = httpClientFactory;
         }
         public async Task CreateProductAsync(CreateProductDto createProductDto)
         {
@@ -135,9 +138,40 @@ namespace MultiShop.Catalog.Services.ProductServices
 
         public async Task<List<ResultProductDto>> GettAllProductAsync()
         {
-            var values = await _productCollection.Find(x => true).ToListAsync();
-            return _mapper.Map<List<ResultProductDto>>(values);
+            var products = await _productCollection.Find(x => true).ToListAsync();
+            var mappedProducts = _mapper.Map<List<ResultProductDto>>(products);
+
+            var httpClient = _httpClientFactory.CreateClient("CommentAPI");
+
+            foreach (var product in mappedProducts)
+            {
+                var requestUrl = $"api/comments/GetProductRatingStats?productId={product.ProductId}"; // Parametreli URL
+
+                // Header eklemek
+                httpClient.DefaultRequestHeaders.Clear(); // Varsayılan header'ları temizleyin
+                httpClient.DefaultRequestHeaders.Add("accept", "*/*");
+
+                var responseMessage = await httpClient.GetAsync(requestUrl);
+
+                if (responseMessage.IsSuccessStatusCode)
+                {
+                    var jsonData = await responseMessage.Content.ReadAsStringAsync();
+                    var ratingStats = JsonConvert.DeserializeObject<ProductRatingStatsDto>(jsonData);
+
+                    product.AverageRating = ratingStats.AverageRating;
+                    product.ReviewCount = ratingStats.TotalReviews;
+                }
+                else
+                {
+                    // Hata durumunda yapılacak işlemler
+                    // Örneğin, loglama veya varsayılan değerler
+                }
+            }
+
+            return mappedProducts;
         }
+
+
         public async Task UpdateProductAsync(UpdateProductDto updateProductDto)
         {
             var values = _mapper.Map<Product>(updateProductDto);
